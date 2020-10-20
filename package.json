@@ -1,0 +1,30 @@
+{
+  "name": "siteswap",
+  "version": "1.0.0",
+  "description": "A class for siteswaps.",
+  "main": "siteswap.js",
+  "scripts": {
+    "buildGrammar": "pegjs --plugin ./node_modules/ts-pegjs/src/tspegjs --extra-options-file pegconfig.json -o src/parser.ts --cache src/siteswap-grammar.peg",
+    "build": "webpack",
+    "test": "mocha -r ts-node/register tests/**/*.test.ts",
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.0.3",
+    "chai": "^4.2.0",
+    "mocha": "^8.2.0",
+    "nyc": "^15.1.0",
+    "ts-loader": "^8.0.4",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "pegjs": "^0.10.0",
+    "ts-pegjs": "^0.2.7"
+  }
+}

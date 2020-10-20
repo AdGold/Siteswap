@@ -1,0 +1,6 @@
+{
+    "tspegjs": {
+        "noTslint": false,
+        "customHeader": "import { ssToFloat, Hand, Throw, JugglerBeat, JugglerBeats, fromLetter } from './common';"
+    }
+}

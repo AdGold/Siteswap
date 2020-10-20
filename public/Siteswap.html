@@ -1,0 +1,71 @@
+<html>
+<head>
+<title>Siteswap validator/info</title>
+</head>
+<body>
+<br>
+<b>Enter siteswap:</b><br>
+<input name="siteswap" id="pattern"> <br><br>
+<br>
+<input type="checkbox" id="synch-ground"> Use synch ground for transitions
+<br>
+<input type="button" id="flip" value="Flip siteswap">
+<hr />
+<p id="info">info</p>
+</body>
+<script type="module" type="text/javascript" src="siteswap.js"></script>
+<script type="text/javascript">
+
+
+let useSyncGround = false;
+
+function update() {
+	const pattern = document.getElementById('pattern').value;
+    // TODO work out generality automatically where possible - grey out if needed and possibly show a box box for number of hands/hand order
+    // const generalSiteswap = new GeneralSiteswap(pattern);
+    // const isGeneral = !generalSiteswap.isPureSiteswap();
+    let ss;
+    try {
+        ss = siteswap.Parse(pattern);
+    } catch (e) {
+        document.getElementById('info').innerHTML = e.message;
+        return;
+    }
+    if (ss.isValid) {
+        document.getElementById('info').innerHTML = getInfo(ss);
+    } else {
+        document.getElementById('info').innerHTML = ss.errorMessage;
+	}
+}
+
+function getInfo(ss) {
+    var res = 'Siteswap: ' + ss.toString() + '<br>' +
+          'Jugglers: ' + ss.numJugglers + '<br>' +
+          'Objects: ' + ss.numObjects + '<br>' +
+          'Period: ' + ss.period + '<br>' +
+          'Max throw: ' + ss.maxHeight + '<br>';
+//     const state = ss.state;
+//     if (state.isGround) {
+//           res += 'Ground state: ' + state.toString() + '<br>';
+//     } else {
+//           res += 'State: ' + state.toString() + '<br>';
+//     }
+//     const useSynchGround = document.getElementById('synch-ground').checked;
+//     if (!state.isGround) {
+//           res += 'Entry: ' + state.entry().toString() + '<br>' +
+//           'Exit: ' + state.exit().toString() + '<br>' +
+//           'Excitation: ' + state.excitation + '<br>';
+//     }
+    return res;
+}
+
+document.getElementById('pattern').oninput = update;
+document.getElementById('siteswap').onclick= update;
+document.getElementById('synch-ground').onclick = update;
+document.getElementById('flip').onclick = function(){
+    document.getElementById('pattern').value = ss.flip().toString();
+    update();
+}
+
+</script>
+</html>

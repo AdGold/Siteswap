@@ -1,0 +1,66 @@
+start = siteswap
+
+siteswap = passing / solo:solo {
+    return [solo];
+}
+
+passing = delays:delays? WS '<' WS head:solo tail:( '|' WS solo )* '>' WS {
+    const jugglers = head;
+    jugglers.push(...tail.map((j: any) => j[2][0]));
+    return [jugglers, delays];
+}
+
+delays = '{' WS head:float WS tail:( ',' WS float)* '}' {
+    const delays = [head];
+    delays.push(...tail.map((d: any) => d[2]));
+    return delays;
+}
+
+float = val:$([0-9]+ ('.' [0-9]*)?) {
+    return parseFloat(val);
+}
+
+solo = beats:beat+ asterix:'*'? {
+    const allBeats = []
+    for (const beat of beats) {
+        if (beat[0] instanceof JugglerBeat) allBeats.push(...beat);
+        else allBeats.push(beat);
+    }
+    return [new JugglerBeats(allBeats, asterix !== null)];
+}
+
+beat = sync / WS hand:[RL]? async:async {
+    if (hand === 'L') return new JugglerBeat(async, []);
+    if (hand === 'R') return new JugglerBeat([], async);
+    return async;
+}
+
+sync = WS '\(' left:async ',' right:async '\)' WS skipEmpty:'!'? WS {
+    const beats = [new JugglerBeat(left, right)];
+    if (!skipEmpty) beats.push(new JugglerBeat([], []));
+    return beats;
+}
+
+async = toss / WS '\[' multiplex:toss+ '\]' WS {
+    return multiplex.map((th: any) => th[0]);
+}
+
+toss = WS height:ssThrow modifiers:throwMods WS {
+    const x = modifiers[0] !== null;
+    const pass = modifiers[1] !== null;
+    const passTo = modifiers[2];
+    return [new Throw(height, x, pass, passTo)];
+}
+
+throwMods = passMods / x:'x'? { return [x, null, null]; }
+
+passMods = pass:'p' x:'x'? passTo:[A-Z]? {
+    return [x, pass, passTo ? fromLetter(passTo, 'A') : passTo];
+}
+
+ssThrow = height:$([0-9a-z]('\.'[0-9]+)?) {
+    return ssToFloat(height);
+}
+
+WS = ' '*
+
