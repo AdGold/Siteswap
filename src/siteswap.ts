@@ -1,4 +1,5 @@
 import { JugglerBeats, Throw, Hand, fixFraction, toLetter } from "./common";
+import { State, JugglerState, JugglerStateBeat } from "./state";
 import { parse } from "./parser";
 
 function getLandJuggler(th: Throw, startJuggler: number, numJugglers: number) {
@@ -38,10 +39,14 @@ export default class Siteswap {
     jugglers: JugglerBeats[];
     jugglerDelays: number[];
 
+    state: State;
+
     constructor(jugglers: JugglerBeats[], jugglerDelays?: number[]) {
         this.jugglers = jugglers;
         // Default to all delays 0
         this.jugglerDelays = jugglerDelays ? jugglerDelays : jugglers.map(j => 0);
+        // Make compiler happy
+        this.state = new State([]);
         this.validate();
     }
 
@@ -124,6 +129,7 @@ export default class Siteswap {
             return false;
         }
 
+        const states = this.jugglers.map(j => JugglerState.Empty(this.maxHeight));
         const pureAsync = this.jugglers.every(juggler => juggler.beats.every(beat => beat.isAsync()));
         const implicitFlip = pureAsync && (this.period%2 === 1);
         for (let jugglerId = 0; jugglerId < this.numJugglers; jugglerId++) {
@@ -150,10 +156,20 @@ export default class Siteswap {
                             return false;
                         }
                         check[landJuggler][landTime][landHand]--;
+                        // Add to state, first at original land time, ignoring those landing before the end of the siteswap
+                        let curTime = fullLandTime - this.period;
+                        let curHand = landHand;
+                        while (curTime >= 0) {
+                            states[landJuggler].beats[curTime].increment(curHand);
+                            // Back one period of the siteswap
+                            if (implicitFlip) curHand = 1 - curHand;
+                            curTime -= this.period;
+                        }
                     }
                 }
             }
         }
+        this.state = new State(states);
         this.isValid = true;
         return true;
     }
@@ -202,5 +218,3 @@ export default class Siteswap {
 
     // TODO PasreFromKHSS
 }
-
-// TODO export State;

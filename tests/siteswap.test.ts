@@ -283,3 +283,84 @@ describe('Siteswap manipulations', function() {
         expect(ss.flip().toString()).equal('<(4,6)|(8,2)>');
     });
 });
+
+describe('Siteswap state calculations', function() {
+    it('State of 97531', function() {
+        const ss = Siteswap.Parse('97531');
+        expect(ss.state.toString()).equal('11111');
+        expect(ss.state.numObjects).equal(5);
+        expect(ss.state.numJugglers).equal(1);
+        expect(ss.state.isGround).equal(true);
+    });
+
+    it('State of 15', function() {
+        const ss = Siteswap.Parse('15');
+        expect(ss.state.toString()).equal('10101');
+        expect(ss.state.numObjects).equal(3);
+        expect(ss.state.isGround).equal(false);
+    });
+
+    it('State of 00555', function() {
+        const ss = Siteswap.Parse('00555');
+        expect(ss.state.toString()).equal('00111');
+        expect(ss.state.numObjects).equal(3);
+        expect(ss.state.isGround).equal(false);
+    });
+
+    it('State of L00555', function() {
+        const ss = Siteswap.Parse('L00555');
+        expect(ss.state.toString()).equal('00111');
+        expect(ss.state.numObjects).equal(3);
+        expect(ss.state.isGround).equal(false);
+    });
+
+    it('State of [43]23', function() {
+        const ss = Siteswap.Parse('[43]23');
+        expect(ss.state.toString()).equal('211');
+        expect(ss.state.numObjects).equal(4);
+        expect(ss.state.isGround).equal(false);
+    });
+
+    it('State of (4,4)', function() {
+        const ss = Siteswap.Parse('(4,4)');
+        expect(ss.state.toString()).equal('(1,1)(0,0)(1,1)');
+        expect(ss.state.numObjects).equal(4);
+        expect(ss.state.isGround).equal(false);
+    });
+
+    it('State of (4,0)!', function() {
+        const ss = Siteswap.Parse('(4,0)!');
+        expect(ss.state.toString()).equal('(1,0)(1,0)(1,0)(1,0)');
+        expect(ss.state.numObjects).equal(4);
+        expect(ss.state.isGround).equal(false);
+    });
+
+    it('State of 3R3x*', function() {
+        const ss = Siteswap.Parse('3R3x*');
+        expect(ss.state.toString()).equal('(0,1)(0,1)(1,0)');
+        expect(ss.state.numObjects).equal(3);
+        expect(ss.state.isGround).equal(false);
+    });
+
+    it('State of <3p3|3p3>', function() {
+        const ss = Siteswap.Parse('<3p3|3p3>');
+        expect(ss.state.toString()).equal('<111|111>');
+        expect(ss.state.numObjects).equal(6);
+        expect(ss.state.isGround).equal(true);
+    });
+
+    it('State of <2|4> should not be ground', function() {
+        const ss = Siteswap.Parse('<2|4>');
+        expect(ss.state.toString()).equal('<11|1111>');
+        expect(ss.state.numObjects).equal(6);
+        expect(ss.state.isGround).equal(false);
+    });
+
+    it('State of {0,0.5}<3.5p|3.5px> should be ground', function() {
+        const ss = Siteswap.Parse('{0,0.5}<3.5p|3.5px>');
+        expect(ss.state.toString()).equal('<1111|111>');
+        expect(ss.state.numObjects).equal(7);
+        expect(ss.state.isGround).equal(true);
+    });
+
+});
