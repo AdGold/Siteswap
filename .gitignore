@@ -116,6 +116,7 @@ dist
 .pnp.*
 
 # Build outputs
+build/
 public/*.js
 lib/
 lib-es/
