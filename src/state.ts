@@ -1,123 +1,123 @@
-import { JugglerBeats, Throw, Hand } from "./common";
+import {Hand} from './common';
 
 export class JugglerStateBeat {
-    LH: number;
-    RH: number;
+  LH: number;
+  RH: number;
 
-    constructor(LH: number = 0, RH: number = 0) {
-        this.LH = LH;
-        this.RH = RH;
-    }
+  constructor(LH = 0, RH = 0) {
+    this.LH = LH;
+    this.RH = RH;
+  }
 
-    increment(hand: Hand) {
-        if (hand == Hand.Left) this.LH++;
-        else this.RH++;
-    }
+  increment(hand: Hand) {
+    if (hand === Hand.Left) this.LH++;
+    else this.RH++;
+  }
 
-    isSync() {
-        return this.LH > 0 && this.RH > 0;
-    }
+  isSync() {
+    return this.LH > 0 && this.RH > 0;
+  }
 
-    isEmpty() {
-        return this.LH == 0 && this.RH == 0;
-    }
+  isEmpty() {
+    return this.LH === 0 && this.RH === 0;
+  }
 
-    flip() {
-        return new JugglerStateBeat(this.RH, this.LH);
-    }
+  flip() {
+    return new JugglerStateBeat(this.RH, this.LH);
+  }
 
-    toString(sync: boolean) {
-        if (sync) {
-            return `(${this.LH},${this.RH})`;
-        } else {
-            if (this.isSync()) {
-                throw new Error("Attempt to use async toString on sync beat");
-            }
-            // One of them must be zero so this is valid.
-            return `${this.LH + this.RH}`;
-        }
+  toString(sync: boolean) {
+    if (sync) {
+      return `(${this.LH},${this.RH})`;
+    } else {
+      if (this.isSync()) {
+        throw new Error('Attempt to use async toString on sync beat');
+      }
+      // One of them must be zero so this is valid.
+      return `${this.LH + this.RH}`;
     }
+  }
 }
 
 export class JugglerState {
-    beats: JugglerStateBeat[];
+  beats: JugglerStateBeat[];
 
-    constructor(beats: JugglerStateBeat[]) {
-        this.beats = beats;
-    }
+  constructor(beats: JugglerStateBeat[]) {
+    this.beats = beats;
+  }
 
-    static Empty(maxHeight: number) {
-        const beats = [];
-        for (let i = 0; i < maxHeight; i++) {
-            beats.push(new JugglerStateBeat());
-        }
-        return new JugglerState(beats);
+  static Empty(maxHeight: number) {
+    const beats = [];
+    for (let i = 0; i < maxHeight; i++) {
+      beats.push(new JugglerStateBeat());
     }
+    return new JugglerState(beats);
+  }
 
-    removeTrailingZeros() {
-        while (this.beats.length && this.beats[this.beats.length-1].isEmpty()) {
-            this.beats.pop();
-        }
+  removeTrailingZeros() {
+    while (this.beats.length && this.beats[this.beats.length - 1].isEmpty()) {
+      this.beats.pop();
     }
+  }
 
-    isPureAsync() {
-        // Async patterns can start with either hand
-        let curHand = -1;
-        for (const beat of this.beats) {
-            if (beat.isSync()) return false;
-            if (beat.LH > 0) {
-                if (curHand == Hand.Right) return false;
-                curHand = Hand.Left;
-            } else if (beat.RH > 0){
-                if (curHand == Hand.Left) return false;
-                curHand = Hand.Right;
-            }
-            if (curHand != -1) {
-                curHand = 1 - curHand;
-            }
-        }
-        return true;
+  isPureAsync() {
+    // Async patterns can start with either hand
+    let curHand = -1;
+    for (const beat of this.beats) {
+      if (beat.isSync()) return false;
+      if (beat.LH > 0) {
+        if (curHand === Hand.Right) return false;
+        curHand = Hand.Left;
+      } else if (beat.RH > 0) {
+        if (curHand === Hand.Left) return false;
+        curHand = Hand.Right;
+      }
+      if (curHand !== -1) {
+        curHand = 1 - curHand;
+      }
     }
+    return true;
+  }
 
-    toString() {
-        const isAsync = this.isPureAsync();
-        return this.beats.map(b => b.toString(!isAsync)).join("");
-    }
+  toString() {
+    const isAsync = this.isPureAsync();
+    return this.beats.map(b => b.toString(!isAsync)).join('');
+  }
 }
 
 export class State {
-    jugglers: JugglerState[];
-    readonly isGround: boolean;
-    readonly numObjects: number;
-    readonly numJugglers: number;
+  jugglers: JugglerState[];
+  readonly isGround: boolean;
+  readonly numObjects: number;
+  readonly numJugglers: number;
 
-    constructor(jugglers: JugglerState[]) {
-        this.jugglers = jugglers;
-        this.numJugglers = this.jugglers.length;
-        for (const state of this.jugglers) {
-            state.removeTrailingZeros();
-        }
-
-        this.numObjects = 0;
-        this.isGround = true;
-        const len = this.numJugglers > 0 ? this.jugglers[0].beats.length : 0;
-        for (const state of this.jugglers) {
-            // All jugglers must be within a margin or 1
-            this.isGround &&= Math.abs(state.beats.length - len) <= 1;
-            this.isGround &&= state.isPureAsync();
-            for (const beat of state.beats) {
-                this.numObjects += beat.LH + beat.RH;
-                this.isGround &&= (beat.LH + beat.RH === 1);
-            }
-        }
+  constructor(jugglers: JugglerState[]) {
+    this.jugglers = jugglers;
+    this.numJugglers = this.jugglers.length;
+    for (const state of this.jugglers) {
+      state.removeTrailingZeros();
     }
 
-    toString() {
-        if (this.numJugglers === 1) return this.jugglers[0].toString();
-        const stateStr = this.jugglers.map(j => j.toString()).join('|');
-        return `<${stateStr}>`;
+    this.numObjects = 0;
+    this.isGround = true;
+    const len = this.numJugglers > 0 ? this.jugglers[0].beats.length : 0;
+    for (const state of this.jugglers) {
+      // All jugglers must be within a margin or 1
+      this.isGround &&= Math.abs(state.beats.length - len) <= 1;
+      this.isGround &&= state.isPureAsync();
+      for (const beat of state.beats) {
+        this.numObjects += beat.LH + beat.RH;
+        this.isGround &&= beat.LH + beat.RH === 1;
+      }
     }
-/*
+  }
+
+  toString() {
+    if (this.numJugglers === 1) return this.jugglers[0].toString();
+    const stateStr = this.jugglers.map(j => j.toString()).join('|');
+    return `<${stateStr}>`;
+  }
+  /*
     entry(from?: State) {
         if (!from) {
             from = State.GroundState(this.numObjects);
@@ -163,7 +163,7 @@ export class State {
             throw Error("States must be for the same number of throws.");
         }
         // Find the first shift where s2 is >= s1 at all points, e.g.
-        // 11011 
+        // 11011
         //   11101
         let shift = Math.max(0, s1.state.length - s2.state.length);
         for (; shift < s1.state.length; shift++) {
@@ -184,7 +184,7 @@ export class State {
 
     static FindLandingTimes(s1: State, s2: State, shift: number) {
         // Find landing positions needed
-        // 11011 
+        // 11011
         //   11101
         // Lands: 2, 6
         let lands: number[] = [];
