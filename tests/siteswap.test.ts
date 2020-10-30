@@ -308,6 +308,20 @@ describe('Siteswap state calculations', () => {
     expect(ss.state.isGround).equal(false);
   });
 
+  it('State of 801', () => {
+    const ss = Siteswap.Parse('801');
+    expect(ss.state.toString()).equal('101001');
+    expect(ss.state.numObjects).equal(3);
+    expect(ss.state.isGround).equal(false);
+  });
+
+  it('State of b01', () => {
+    const ss = Siteswap.Parse('b01');
+    expect(ss.state.toString()).equal('101001001');
+    expect(ss.state.numObjects).equal(4);
+    expect(ss.state.isGround).equal(false);
+  });
+
   it('State of 00555', () => {
     const ss = Siteswap.Parse('00555');
     expect(ss.state.toString()).equal('00111');

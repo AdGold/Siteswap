@@ -9,25 +9,6 @@ function getLandJuggler(th: Throw, startJuggler: number, numJugglers: number) {
   return startJuggler;
 }
 
-function getLandHand(
-  th: Throw,
-  landTime: number,
-  startHand: Hand,
-  period: number,
-  implicitFlip: boolean
-) {
-  // Passes swap hands normally ('straight') and with an x they don't ('crossing')
-  // Normal throws swap hands if they're even with an x or odd with no x
-  const throwSwapsHands = th.pass ? !th.x : (th.height % 2 === 0) === th.x;
-  // We swap hands (again) if there is an implicit flip (e.g. odd period
-  // vanilla siteswaps) and we looped around an odd number of times.
-  // This isn't because the throw swapped hands but because the siteswap
-  // should be repeating on the other side.
-  const loops = Math.floor(landTime / period);
-  const swapHands = throwSwapsHands !== (implicitFlip && loops % 2 === 1);
-  return swapHands ? 1 - startHand : startHand;
-}
-
 export default class Siteswap {
   numObjects = 0;
   numJugglers = 0;
@@ -169,13 +150,14 @@ export default class Siteswap {
               return false;
             }
             const landTime = fullLandTime % this.period;
-            const landHand = getLandHand(
-              th,
-              fullLandTime,
-              hand,
-              this.period,
-              implicitFlip
-            );
+            const fullLandHand = th.throwSwapsHands() ? 1 - hand : hand;
+            // We swap hands (again) if there is an implicit flip (e.g. odd period
+            // vanilla siteswaps) and we looped around an odd number of times.
+            // This isn't because the throw swapped hands but because the siteswap
+            // should be repeating on the other side.
+            const loops = Math.floor(fullLandTime / this.period);
+            const landHand =
+              implicitFlip && loops % 2 === 1 ? 1 - fullLandHand : fullLandHand;
             // Check landing position
             if (check[landJuggler][landTime][landHand] <= 0) {
               this.errorMessage = `Collision at juggler ${landJuggler}, time ${landTime}, hand ${landHand}`;
@@ -184,7 +166,7 @@ export default class Siteswap {
             check[landJuggler][landTime][landHand]--;
             // Add to state, first at original land time, ignoring those landing before the end of the siteswap
             let curTime = fullLandTime - this.period;
-            let curHand = landHand;
+            let curHand = fullLandHand;
             while (curTime >= 0) {
               states[landJuggler].beats[curTime].increment(curHand);
               // Back one period of the siteswap

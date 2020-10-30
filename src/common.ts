@@ -100,6 +100,13 @@ export class Throw {
       this.passTo != null ? toLetter(this.passTo, 'A') : '',
     ].join('');
   }
+
+  throwSwapsHands() {
+    // Passes swap hands normally ('straight') and with an x they don't ('crossing')
+    if (this.pass) return !this.x;
+    // Normal throws swap hands if they're even with an x or odd with no x
+    return (this.height % 2 === 0) === this.x;
+  }
 }
 
 // On a beat, each hand of a juggler can do a multiplex with any number of throws.

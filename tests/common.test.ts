@@ -183,6 +183,26 @@ describe('Throw', () => {
     expect(th.passTo).equal(3);
     expect(th.toString()).equal('4.33pxD');
   });
+
+  it('Throw swaps hands - self', () => {
+    const th = new Throw(5, false, false);
+    expect(th.throwSwapsHands()).equal(true);
+    const th2 = new Throw(4, false, false);
+    expect(th2.throwSwapsHands()).equal(false);
+    const th3 = new Throw(5, true, false);
+    expect(th3.throwSwapsHands()).equal(false);
+    const th4 = new Throw(4, true, false);
+    expect(th4.throwSwapsHands()).equal(true);
+  });
+
+  it('Throw swaps hands - pass', () => {
+    const th = new Throw(5, true, true, 3);
+    // 'crossing' pass - doesn't swap hands
+    expect(th.throwSwapsHands()).equal(false);
+    const th2 = new Throw(4, false, true);
+    // 'straight' pass - does swap hands
+    expect(th2.throwSwapsHands()).equal(true);
+  });
 });
 
 describe('JugglerBeat', () => {
