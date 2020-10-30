@@ -275,6 +275,10 @@ describe('Siteswap examples', function() {
         });
 
     });
+
+    describe('Siteswap properties', function() {
+        // TODO write tests once exact interface is defined
+    });
 });
 
 describe('Siteswap manipulations', function() {

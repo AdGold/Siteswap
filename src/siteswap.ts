@@ -191,13 +191,9 @@ export default class Siteswap {
         return new Siteswap(this.jugglers.map(juggler => juggler.flip()));
     }
 
-    // TODO JIF stuff
-    toJIF() {
-        return {};
-    }
-
-    static FromJif(jif: JSON) {
-    }
+    // TODO JIF conversion
+    // toJIF() { return {}; }
+    // static FromJif(jif: JSON) { }
 
     static Parse(input: string) {
         const parsed = parse(input);
