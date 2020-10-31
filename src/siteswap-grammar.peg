@@ -1,12 +1,12 @@
 start = siteswap
 
 siteswap = passing / solo:solo {
-    return [solo];
+    return [[solo]];
 }
 
 passing = delays:delays? WS '<' WS head:solo tail:( '|' WS solo )* '>' WS {
-    const jugglers = head;
-    jugglers.push(...tail.map((j: any) => j[2][0]));
+    const jugglers = [head];
+    jugglers.push(...tail.map((j: any) => j[2]));
     return [jugglers, delays];
 }
 
@@ -26,7 +26,7 @@ solo = beats:beat+ asterix:'*'? {
         if (beat[0] instanceof JugglerBeat) allBeats.push(...beat);
         else allBeats.push(beat);
     }
-    return [new JugglerBeats(allBeats, asterix !== null)];
+    return new JugglerBeats(allBeats, asterix !== null);
 }
 
 beat = sync / WS hand:[RL]? async:async {

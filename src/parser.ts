@@ -181,7 +181,7 @@ function peg$parse(input: string, options?: IParseOptions) {
   let peg$startRuleFunction: () => any = peg$parsestart;
 
   const peg$c0 = function(solo: any): any {
-      return [solo];
+      return [[solo]];
   };
   const peg$c1 = "<";
   const peg$c2 = peg$literalExpectation("<", false);
@@ -190,8 +190,8 @@ function peg$parse(input: string, options?: IParseOptions) {
   const peg$c5 = ">";
   const peg$c6 = peg$literalExpectation(">", false);
   const peg$c7 = function(delays: any, head: any, tail: any): any {
-      const jugglers = head;
-      jugglers.push(...tail.map((j: any) => j[2][0]));
+      const jugglers = [head];
+      jugglers.push(...tail.map((j: any) => j[2]));
       return [jugglers, delays];
   };
   const peg$c8 = "{";
@@ -220,7 +220,7 @@ function peg$parse(input: string, options?: IParseOptions) {
           if (beat[0] instanceof JugglerBeat) allBeats.push(...beat);
           else allBeats.push(beat);
       }
-      return [new JugglerBeats(allBeats, asterix !== null)];
+      return new JugglerBeats(allBeats, asterix !== null);
   };
   const peg$c23 = /^[RL]/;
   const peg$c24 = peg$classExpectation(["R", "L"], false, false);
