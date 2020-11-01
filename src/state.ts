@@ -1,4 +1,4 @@
-import {Hand, Throw, JugglerBeat, JugglerBeats} from './common';
+import {Hand, Position, Throw, JugglerBeat, JugglerBeats} from './common';
 import Siteswap from './siteswap';
 
 export class JugglerStateBeat {
@@ -48,8 +48,6 @@ export class JugglerStateBeat {
   }
 }
 
-// type GlobalStateBeat = JugglerStateBeat[];
-
 export class JugglerState {
   beats: JugglerStateBeat[];
 
@@ -98,21 +96,6 @@ export class JugglerState {
     const isAsync = this.isPureAsync();
     return this.beats.map(b => b.toString(!isAsync)).join('');
   }
-}
-
-interface Position {
-  juggler: number;
-  time: number;
-  hand: Hand;
-}
-
-function throwFromPositions(p1: Position, p2: Position) {
-  const height = p2.time - p1.time;
-  const pass = p1.juggler !== p2.juggler;
-  const passTo = pass ? p2.juggler : undefined;
-  const swapsHands = p1.hand === p2.hand;
-  const x = pass ? swapsHands : (height % 2 === 0) !== swapsHands;
-  return new Throw(height, x, pass, passTo);
 }
 
 function siteswapShorter(s1: Siteswap, s2: Siteswap) {
@@ -307,7 +290,7 @@ export class State {
         for (const hand of [Hand.Right, Hand.Left]) {
           for (let k = 0; k < s1.jugglers[j].beats[i].val(hand); k++) {
             const start: Position = {juggler: j, time: i, hand: hand};
-            beat[hand].push(throwFromPositions(start, lands[0]));
+            beat[hand].push(Throw.FromPositions(start, lands[0]));
             lands = lands.slice(1);
           }
         }

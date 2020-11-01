@@ -76,6 +76,12 @@ export function fixFraction(n: number, allow36 = false) {
   return n;
 }
 
+export interface Position {
+  juggler: number;
+  time: number;
+  hand: Hand;
+}
+
 // A single throw, has a height, which juggler it's to and whether or not it has an 'x' (
 export class Throw {
   origHeight: number;
@@ -106,6 +112,24 @@ export class Throw {
     if (this.pass) return !this.x;
     // Normal throws swap hands if they're even with an x or odd with no x
     return (this.height % 2 === 0) === this.x;
+  }
+
+  landJuggler(startJuggler: number, numJugglers: number) {
+    if (this.pass) {
+      return this.passTo != null
+        ? this.passTo
+        : (startJuggler + 1) % numJugglers;
+    }
+    return startJuggler;
+  }
+
+  static FromPositions(p1: Position, p2: Position) {
+    const height = p2.time - p1.time;
+    const pass = p1.juggler !== p2.juggler;
+    const passTo = pass ? p2.juggler : undefined;
+    const swapsHands = p1.hand === p2.hand;
+    const x = pass ? swapsHands : (height % 2 === 0) !== swapsHands;
+    return new Throw(height, x, pass, passTo);
   }
 }
 

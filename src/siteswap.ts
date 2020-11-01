@@ -2,13 +2,6 @@ import {JugglerBeats, Throw, Hand, fixFraction, toLetter} from './common';
 import {State, JugglerState} from './state';
 import {parse} from './parser';
 
-function getLandJuggler(th: Throw, startJuggler: number, numJugglers: number) {
-  if (th.pass) {
-    return th.passTo != null ? th.passTo : (startJuggler + 1) % numJugglers;
-  }
-  return startJuggler;
-}
-
 export default class Siteswap {
   numObjects = 0;
   numJugglers = 0;
@@ -138,7 +131,7 @@ export default class Siteswap {
         for (const hand of [Hand.Right, Hand.Left]) {
           const ths = hand === Hand.Left ? beat.LH : beat.RH;
           for (const th of ths) {
-            const landJuggler = getLandJuggler(th, jugglerId, this.numJugglers);
+            const landJuggler = th.landJuggler(jugglerId, this.numJugglers);
             const fractionDiff =
               jugglerDelays[jugglerId] - jugglerDelays[landJuggler];
             let fullLandTime = i + th.height + fractionDiff;

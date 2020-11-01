@@ -7,6 +7,7 @@ import {
   ssToFloat,
   fixFraction,
   Hand,
+  Position,
   Throw,
   JugglerBeat,
   JugglerBeats,
@@ -202,6 +203,45 @@ describe('Throw', () => {
     const th2 = new Throw(4, false, true);
     // 'straight' pass - does swap hands
     expect(th2.throwSwapsHands()).equal(true);
+  });
+
+  it('From positions, 6', () => {
+    const p1: Position = {juggler: 1, time: 0, hand: Hand.Left};
+    const p2: Position = {juggler: 1, time: 6, hand: Hand.Left};
+    expect(Throw.FromPositions(p1, p2).toString()).equal('6');
+  });
+
+  it('From positions, 4x', () => {
+    const p1: Position = {juggler: 1, time: 2, hand: Hand.Left};
+    const p2: Position = {juggler: 1, time: 6, hand: Hand.Right};
+    expect(Throw.FromPositions(p1, p2).toString()).equal('4x');
+  });
+
+  it('From positions, 3pC', () => {
+    const p1: Position = {juggler: 1, time: 2, hand: Hand.Left};
+    const p2: Position = {juggler: 2, time: 5, hand: Hand.Right};
+    expect(Throw.FromPositions(p1, p2).toString()).equal('3pC');
+  });
+
+  it('From positions, 3pxE', () => {
+    const p1: Position = {juggler: 1, time: 2, hand: Hand.Left};
+    const p2: Position = {juggler: 4, time: 5, hand: Hand.Left};
+    expect(Throw.FromPositions(p1, p2).toString()).equal('3pxE');
+  });
+
+  it('Get land juggler - self', () => {
+    const th = new Throw(3, false, false);
+    expect(th.landJuggler(0, 1)).equal(0);
+  });
+
+  it('Get land juggler - pass', () => {
+    const th = new Throw(3, false, true, 4);
+    expect(th.landJuggler(0, 6)).equal(4);
+  });
+
+  it('Get land juggler - relative pass', () => {
+    const th = new Throw(3, false, true);
+    expect(th.landJuggler(2, 3)).equal(0);
   });
 });
 
