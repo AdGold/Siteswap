@@ -7,7 +7,7 @@
 <b>Enter siteswap:</b><br>
 <input name="siteswap" id="pattern">
 <br>
-<input type="checkbox" id="synch-ground"> Use synch ground for transitions
+<input type="checkbox" id="sync-ground"> Use sync ground for transitions
 <br>
 <input type="button" id="flip" value="Flip siteswap">
 <hr />
@@ -54,20 +54,19 @@ function getInfo(ss) {
           'Period: ' + ss.period + '<br>' +
           'Max throw: ' + ss.maxHeight + '<br>';
     const state = ss.state;
-    if (state.isGround) {
+    const useSyncGround = document.getElementById('sync-ground').checked;
+    if (state.isGround && !useSyncGround) {
           res += 'Ground state: ' + state.toString() + '<br>';
     } else {
           res += 'State: ' + state.toString() + '<br>';
-//          const useSynchGround = document.getElementById('synch-ground').checked;
-//          res += 'Entry: ' + state.entry().toString() + '<br>' +
-//          'Exit: ' + state.exit().toString() + '<br>' +
-//          'Excitation: ' + state.excitation + '<br>';
+          res += 'Entry: ' + state.entry(undefined, useSyncGround).toString() + '<br>' +
+                 'Exit: ' + state.exit(undefined, useSyncGround).toString() + '<br>';
     }
     return res;
 }
 
 document.getElementById('pattern').oninput = update;
-document.getElementById('synch-ground').onclick = update;
+document.getElementById('sync-ground').onclick = update;
 document.getElementById('flip').onclick = flip;
 
 </script>
