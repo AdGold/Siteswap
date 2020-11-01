@@ -10,8 +10,7 @@
     "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test",
     "fix": "gts fix",
     "lint": "gts lint",
-    "clean": "gts clean",
-    "posttest": "npm run lint"
+    "clean": "gts clean"
   },
   "author": "",
   "license": "MIT",
