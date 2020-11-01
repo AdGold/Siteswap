@@ -192,25 +192,27 @@ export class JugglerBeats {
   }
 
   toString() {
-    let prev = undefined;
     let prevSync = false;
     let result = '';
+    let curHand = Hand.Right;
     for (const beat of this.beats) {
       if (prevSync && !beat.isEmpty()) {
         result += '!';
       }
-      // LH when not at the start, and have only RH throwing previously
-      const curHand =
-        prev && prev.isAsync() && prev.RH.length ? Hand.Left : Hand.Right;
       result += beat.toString(curHand);
-      prev = beat;
-      // If we have an empty beat that isn't hidden
-      if (beat.isEmpty() && (prev == null || !prevSync)) {
-        result += '(0,0)';
-        prevSync = true;
-      } else {
-        prevSync = beat.isSync();
+      // If we have an empty beat that isn't hidden treat as async 0
+      if (beat.isEmpty() && !prevSync) {
+        result += '0';
+        // Keep in line with whatever async was thrown previously
+        curHand = 1 - curHand;
+      } else if (beat.isEmpty()) {
+        curHand = Hand.Right;
+      } else if (beat.isSync()) {
+        curHand = Hand.Right;
+      } else if (beat.isAsync()) {
+        curHand = beat.RH.length ? Hand.Left : Hand.Right;
       }
+      prevSync = beat.isSync();
     }
     if (prevSync) {
       result += '!';

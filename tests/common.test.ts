@@ -365,26 +365,26 @@ describe('JugglerBeats', () => {
   it('Empty beat at start toString', () => {
     const beat1 = new JugglerBeat([], []);
     const beats = new JugglerBeats([beat1]);
-    expect(beats.toString()).equal('(0,0)!');
+    expect(beats.toString()).equal('0');
   });
 
   it('Empty beat after async toString', () => {
     const beat1 = new JugglerBeat([], [new Throw(4, false, false)]);
     const beat2 = new JugglerBeat([], []);
     const beats = new JugglerBeats([beat1, beat2]);
-    expect(beats.toString()).equal('4(0,0)!');
+    expect(beats.toString()).equal('40');
   });
 
   it('Double empty beat', () => {
     const beat1 = new JugglerBeat([], []);
     const beats = new JugglerBeats([beat1, beat1]);
-    expect(beats.toString()).equal('(0,0)');
+    expect(beats.toString()).equal('00');
   });
 
   it('Triple empty beat', () => {
     const beat1 = new JugglerBeat([], []);
     const beats = new JugglerBeats([beat1, beat1, beat1]);
-    expect(beats.toString()).equal('(0,0)(0,0)!');
+    expect(beats.toString()).equal('000');
   });
 
   it('Missing empty beat toString', () => {
