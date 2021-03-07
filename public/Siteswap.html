@@ -23,7 +23,7 @@ function update() {
 	const pattern = document.getElementById('pattern').value;
     let ss;
     try {
-        ss = siteswap.default.Parse(pattern);
+        ss = siteswap.Siteswap.Parse(pattern);
     } catch (e) {
         document.getElementById('info').innerHTML = e.message;
         return;
@@ -39,7 +39,7 @@ function flip() {
 	const pattern = document.getElementById('pattern');
     let ss;
     try {
-        ss = siteswap.default.Parse(pattern.value);
+        ss = siteswap.Siteswap.Parse(pattern.value);
     } catch (e) {
         return;
     }

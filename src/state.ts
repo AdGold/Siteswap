@@ -6,7 +6,7 @@ import {
   JugglerBeat,
   JugglerBeats,
 } from './common';
-import Siteswap from './siteswap';
+import {Siteswap} from './siteswap';
 
 export class JugglerStateBeat {
   LH: number;

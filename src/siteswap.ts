@@ -9,7 +9,7 @@ import {
 import {State} from './state';
 import {parse} from './parser';
 
-export default class Siteswap {
+export class Siteswap {
   numObjects = 0;
   numJugglers = 0;
   period = 0;
