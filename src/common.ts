@@ -167,8 +167,8 @@ export class JugglerBeat {
     return !this.isSync() && !this.isEmpty();
   }
 
-  hasMultiplex() {
-    return this.LH.length > 1 || this.RH.length > 1;
+  maxMultiplex() {
+    return Math.max(this.LH.length, this.RH.length);
   }
 
   hasPass() {

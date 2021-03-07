@@ -15,7 +15,7 @@ export class Siteswap {
   period = 0;
   maxHeight = 0;
 
-  hasMultiplex = false;
+  maxMultiplex = 0;
   hasSync = false;
   hasAsync = false;
   hasPass = false;
@@ -67,12 +67,12 @@ export class Siteswap {
       return false;
     }
 
-    this.hasMultiplex = this.jugglers.some(j =>
-      j.beats.some(b => b.hasMultiplex)
-    );
-    this.hasPass = this.jugglers.some(j => j.beats.some(b => b.hasPass));
-    this.hasSync = this.jugglers.some(j => j.beats.some(b => b.isSync));
-    this.hasAsync = this.jugglers.some(j => j.beats.some(b => b.isAsync));
+    this.maxMultiplex = Math.max(...this.jugglers.map(j =>
+      Math.max(...j.beats.map(b => b.maxMultiplex()))
+    ));
+    this.hasPass = this.jugglers.some(j => j.beats.some(b => b.hasPass()));
+    this.hasSync = this.jugglers.some(j => j.beats.some(b => b.isSync()));
+    this.hasAsync = this.jugglers.some(j => j.beats.some(b => b.isAsync()));
 
     this.maxHeight = 0;
     let sum = 0;

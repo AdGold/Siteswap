@@ -251,7 +251,7 @@ describe('JugglerBeat', () => {
     expect(beat.isAsync()).equal(true);
     expect(beat.isSync()).equal(false);
     expect(beat.isEmpty()).equal(false);
-    expect(beat.hasMultiplex()).equal(false);
+    expect(beat.maxMultiplex()).equal(1);
     expect(beat.hasPass()).equal(false);
     expect(beat.toString(Hand.Left)).equal('5');
   });
@@ -264,7 +264,7 @@ describe('JugglerBeat', () => {
     expect(beat.isAsync()).equal(false);
     expect(beat.isSync()).equal(true);
     expect(beat.isEmpty()).equal(false);
-    expect(beat.hasMultiplex()).equal(false);
+    expect(beat.maxMultiplex()).equal(1);
     expect(beat.hasPass()).equal(false);
     expect(beat.toString(Hand.Right)).equal('(6x,4)');
   });
@@ -274,9 +274,21 @@ describe('JugglerBeat', () => {
     expect(beat.isAsync()).equal(false);
     expect(beat.isSync()).equal(false);
     expect(beat.isEmpty()).equal(true);
-    expect(beat.hasMultiplex()).equal(false);
+    expect(beat.maxMultiplex()).equal(0);
     expect(beat.hasPass()).equal(false);
     expect(beat.toString(Hand.Left)).equal('');
+  });
+
+  it('Big multiplex beat', () => {
+    const beat = new JugglerBeat(
+      [], [new Throw(8, false, false), new Throw(4, false, false), new Throw(10, false, false), new Throw(6, false, false)]
+    );
+    expect(beat.isAsync()).equal(true);
+    expect(beat.isSync()).equal(false);
+    expect(beat.isEmpty()).equal(false);
+    expect(beat.maxMultiplex()).equal(4);
+    expect(beat.hasPass()).equal(false);
+    expect(beat.toString(Hand.Left)).equal('R[84a6]');
   });
 
   it('Multiplex sync beat', () => {
@@ -287,7 +299,7 @@ describe('JugglerBeat', () => {
     expect(beat.isAsync()).equal(false);
     expect(beat.isSync()).equal(true);
     expect(beat.isEmpty()).equal(false);
-    expect(beat.hasMultiplex()).equal(true);
+    expect(beat.maxMultiplex()).equal(2);
     expect(beat.hasPass()).equal(false);
     expect(beat.toString(Hand.Left)).equal('([84],[a6])');
   });
@@ -297,7 +309,7 @@ describe('JugglerBeat', () => {
     expect(beat.isAsync()).equal(true);
     expect(beat.isSync()).equal(false);
     expect(beat.isEmpty()).equal(false);
-    expect(beat.hasMultiplex()).equal(false);
+    expect(beat.maxMultiplex()).equal(1);
     expect(beat.hasPass()).equal(true);
     expect(beat.toString(Hand.Left)).equal('5pB');
   });

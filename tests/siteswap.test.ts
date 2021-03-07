@@ -14,6 +14,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(5);
       expect(ss.period).equals(5);
       expect(ss.maxHeight).equals(9);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(false);
       expect(ss.toString()).equals('97531');
     });
 
@@ -25,6 +29,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(5);
       expect(ss.period).equals(9);
       expect(ss.maxHeight).equals(9);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(false);
       expect(ss.toString()).equals('123456789');
     });
 
@@ -36,6 +44,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(4);
       expect(ss.period).equals(3);
       expect(ss.maxHeight).equals(11);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(false);
       expect(ss.toString()).equals('b01');
     });
 
@@ -63,6 +75,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(4);
       expect(ss.period).equals(3);
       expect(ss.maxHeight).equals(4);
+      expect(ss.maxMultiplex).equals(2);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(false);
       expect(ss.toString()).equals('[43]23');
     });
 
@@ -74,6 +90,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(15);
       expect(ss.period).equals(1);
       expect(ss.maxHeight).equals(5);
+      expect(ss.maxMultiplex).equals(5);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(false);
       expect(ss.toString()).equals('[12345]');
     });
 
@@ -85,6 +105,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(5);
       expect(ss.period).equals(8);
       expect(ss.maxHeight).equals(6);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(false);
+      expect(ss.hasSync).equals(true);
+      expect(ss.hasPass).equals(false);
       expect(ss.toString()).equals('(6,4)(6x,4)(4,6)(4,6x)');
     });
 
@@ -96,6 +120,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(5);
       expect(ss.period).equals(4);
       expect(ss.maxHeight).equals(4);
+      expect(ss.maxMultiplex).equals(2);
+      expect(ss.hasAsync).equals(false);
+      expect(ss.hasSync).equals(true);
+      expect(ss.hasPass).equals(false);
       expect(ss.toString()).equals('([44x],2)(2,[44x])');
     });
 
@@ -107,6 +135,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(8);
       expect(ss.period).equals(1);
       expect(ss.maxHeight).equals(4);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(false);
+      expect(ss.hasSync).equals(true);
+      expect(ss.hasPass).equals(false);
       expect(ss.toString()).equals('(4,4)!');
     });
 
@@ -118,6 +150,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(3);
       expect(ss.period).equals(4);
       expect(ss.maxHeight).equals(3);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(false);
       expect(ss.toString()).equals('3R3x3L3x');
     });
 
@@ -129,6 +165,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(4);
       expect(ss.period).equals(16);
       expect(ss.maxHeight).equals(4);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(true);
+      expect(ss.hasPass).equals(false);
       expect(ss.toString()).equals('44443x4x3(4,4)(4,4)(4,4)(4,3x)(4,3x)!');
     });
 
@@ -140,6 +180,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(3);
       expect(ss.period).equals(1);
       expect(ss.maxHeight).equals(3);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(false);
       expect(ss.toString()).equals('3');
     });
 
@@ -151,6 +195,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(7);
       expect(ss.period).equals(2);
       expect(ss.maxHeight).equals(4);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
       expect(ss.toString()).equals('<4p3|L34p>');
     });
 
@@ -162,6 +210,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(9);
       expect(ss.period).equals(3);
       expect(ss.maxHeight).equals(3);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
       expect(ss.toString()).equals('<3p33|3p33|3p33>');
     });
 
@@ -173,6 +225,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(9);
       expect(ss.period).equals(3);
       expect(ss.maxHeight).equals(3);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
       expect(ss.toString()).equals('<3pC33|3pA33|3pB33>');
     });
 
@@ -184,6 +240,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(7);
       expect(ss.period).equals(2);
       expect(ss.maxHeight).equals(4);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
       expect(ss.toString()).equals('{0,1}<4p3|4p3>');
     });
 
@@ -195,6 +255,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(7);
       expect(ss.period).equals(1);
       expect(ss.maxHeight).equals(3.5);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
       expect(ss.toString()).equals('{0,0.5}<3.5p|3.5px>');
     });
 
@@ -206,6 +270,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(7);
       expect(ss.period).equals(1);
       expect(ss.maxHeight).equals(3.7);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
       expect(ss.toString()).equals('{0,0.3}<3.3p|3.7px>');
     });
 
@@ -217,6 +285,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(10);
       expect(ss.period).equals(2);
       expect(ss.maxHeight).equals(4 + 1 / 3);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
       expect(ss.toString()).equals('{0,0.3,0.6}<3.3p3|3.3p3|4.3p3>');
     });
 
@@ -228,6 +300,10 @@ describe('Siteswap examples', () => {
       expect(ss.numObjects).equals(8);
       expect(ss.period).equals(2);
       expect(ss.maxHeight).equals(4);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(false);
+      expect(ss.hasSync).equals(true);
+      expect(ss.hasPass).equals(true);
       expect(ss.toString()).equals('<(4p,4x)|(4p,4x)>');
     });
 
@@ -278,10 +354,6 @@ describe('Siteswap examples', () => {
       expect(ss.errorMessage).equals('No jugglers');
       expect(ss.isValid).equals(false);
     });
-  });
-
-  describe('Siteswap properties', () => {
-    // TODO write tests once exact interface is defined
   });
 });
 
