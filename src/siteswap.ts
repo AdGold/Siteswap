@@ -1,5 +1,12 @@
-import {JugglerBeats, Throw, Hand, fixFraction, toLetter} from './common';
-import {State, JugglerState} from './state';
+import {
+  JugglerBeats,
+  Position,
+  allPositions,
+  Hand,
+  fixFraction,
+  toLetter,
+} from './common';
+import {State} from './state';
 import {parse} from './parser';
 
 export default class Siteswap {
@@ -32,23 +39,14 @@ export default class Siteswap {
     this.validate();
   }
 
-  reset() {
-    this.numObjects = 0;
-    this.numJugglers = 0;
-    this.period = 0;
-    this.maxHeight = 0;
-
-    this.hasSync = false;
-    this.hasAsync = false;
-    this.hasMultiplex = false;
-    this.hasPass = false;
-
-    this.isValid = false;
-    this.errorMessage = '';
+  throwsAt(position: Position) {
+    const beat = this.jugglers[position.juggler].beats[position.time];
+    return position.hand === Hand.Right ? beat.RH : beat.LH;
   }
 
   validate() {
-    this.reset();
+    this.isValid = false;
+    this.errorMessage = '';
     this.numJugglers = this.jugglers.length;
     if (this.numJugglers === 0) {
       this.errorMessage = 'No jugglers';
@@ -69,38 +67,31 @@ export default class Siteswap {
       return false;
     }
 
+    this.hasMultiplex = this.jugglers.some(j =>
+      j.beats.some(b => b.hasMultiplex)
+    );
+    this.hasPass = this.jugglers.some(j => j.beats.some(b => b.hasPass));
+    this.hasSync = this.jugglers.some(j => j.beats.some(b => b.isSync));
+    this.hasAsync = this.jugglers.some(j => j.beats.some(b => b.isAsync));
+
+    this.maxHeight = 0;
     let sum = 0;
     // check stores the number of throws which should land for each juggler, beat and hand
     // First index = juggler, second index = beat, third index = hand
-    const check: number[][][] = [];
-    for (const juggler of this.jugglers) {
-      const jcheck = [];
-      for (const beat of juggler.beats) {
-        this.hasMultiplex = this.hasMultiplex || beat.hasMultiplex();
-        this.hasSync = this.hasSync || beat.isSync();
-        this.hasAsync = this.hasAsync || beat.isAsync();
-        this.hasPass = this.hasPass || beat.hasPass();
-
-        const bcheck = [];
-        for (const hand of [Hand.Right, Hand.Left]) {
-          const ths = hand === Hand.Left ? beat.LH : beat.RH;
-          for (const th of ths) {
-            sum += th.height;
-            this.maxHeight = Math.max(this.maxHeight, th.height);
-            // Validate pass recipients
-            if (th.passTo && th.passTo >= this.numJugglers) {
-              this.errorMessage = `Invalid juggler ${toLetter(
-                th.passTo,
-                'A'
-              )}, there are only ${this.numJugglers} jugglers`;
-              return false;
-            }
-          }
-          bcheck.push(ths.length);
+    // const check: number[][][] = [];
+    const check = State.Empty(this.numJugglers, this.period);
+    for (const pos of allPositions(this.numJugglers, this.period)) {
+      for (const th of this.throwsAt(pos)) {
+        sum += th.height;
+        this.maxHeight = Math.max(this.maxHeight, th.height);
+        // Validate pass recipients
+        if (th.passTo && th.passTo >= this.numJugglers) {
+          const juggler = toLetter(th.passTo, 'A');
+          this.errorMessage = `Invalid juggler ${juggler}, there are only ${this.numJugglers} jugglers`;
+          return false;
         }
-        jcheck.push(bcheck);
+        check.inc(pos);
       }
-      check.push(jcheck);
     }
 
     this.numObjects = sum / this.period;
@@ -117,60 +108,58 @@ export default class Siteswap {
       return false;
     }
 
-    const states = [];
-    for (let i = 0; i < this.numJugglers; i++) {
-      states.push(JugglerState.Empty(this.maxHeight));
-    }
+    this.state = State.Empty(this.numJugglers, this.maxHeight);
     const pureAsync = this.jugglers.every(juggler =>
       juggler.beats.every(beat => beat.isAsync())
     );
+    // Pure async siteswaps of odd period automatically flip sides
     const implicitFlip = pureAsync && this.period % 2 === 1;
-    for (let jugglerId = 0; jugglerId < this.numJugglers; jugglerId++) {
-      for (let i = 0; i < this.period; i++) {
-        const beat = this.jugglers[jugglerId].beats[i];
-        for (const hand of [Hand.Right, Hand.Left]) {
-          const ths = hand === Hand.Left ? beat.LH : beat.RH;
-          for (const th of ths) {
-            const landJuggler = th.landJuggler(jugglerId, this.numJugglers);
-            const fractionDiff =
-              jugglerDelays[jugglerId] - jugglerDelays[landJuggler];
-            let fullLandTime = i + th.height + fractionDiff;
-            const rounded = Math.round(fullLandTime);
-            if (Math.abs(fullLandTime - rounded) < 1e-2) {
-              fullLandTime = rounded;
-            } else {
-              this.errorMessage = `Throw ${th.origHeight} lands at an invalid time for juggler ${landJuggler}`;
-              return false;
-            }
-            const landTime = fullLandTime % this.period;
-            const fullLandHand = th.throwSwapsHands() ? 1 - hand : hand;
-            // We swap hands (again) if there is an implicit flip (e.g. odd period
-            // vanilla siteswaps) and we looped around an odd number of times.
-            // This isn't because the throw swapped hands but because the siteswap
-            // should be repeating on the other side.
-            const loops = Math.floor(fullLandTime / this.period);
-            const landHand =
-              implicitFlip && loops % 2 === 1 ? 1 - fullLandHand : fullLandHand;
-            // Check landing position
-            if (check[landJuggler][landTime][landHand] <= 0) {
-              this.errorMessage = `Collision at juggler ${landJuggler}, time ${landTime}, hand ${landHand}`;
-              return false;
-            }
-            check[landJuggler][landTime][landHand]--;
-            // Add to state, first at original land time, ignoring those landing before the end of the siteswap
-            let curTime = fullLandTime - this.period;
-            let curHand = fullLandHand;
-            while (curTime >= 0) {
-              states[landJuggler].beats[curTime].increment(curHand);
-              // Back one period of the siteswap
-              if (implicitFlip) curHand = 1 - curHand;
-              curTime -= this.period;
-            }
-          }
+    for (const pos of allPositions(this.numJugglers, this.period)) {
+      for (const th of this.throwsAt(pos)) {
+        const landJuggler = th.landJuggler(pos.juggler, this.numJugglers);
+        const fractionDiff =
+          jugglerDelays[pos.juggler] - jugglerDelays[landJuggler];
+        let fullLandTime = pos.time + th.height + fractionDiff;
+        const rounded = Math.round(fullLandTime);
+        if (Math.abs(fullLandTime - rounded) < 1e-2) {
+          fullLandTime = rounded;
+        } else {
+          this.errorMessage = `Throw ${th.origHeight} lands at an invalid time for juggler ${landJuggler}`;
+          return false;
+        }
+        const landTime = fullLandTime % this.period;
+        const fullLandHand = th.throwSwapsHands() ? 1 - pos.hand : pos.hand;
+        // We swap hands (again) if there is an implicit flip (e.g. odd period
+        // vanilla siteswaps) and we looped around an odd number of times.
+        // This isn't because the throw swapped hands but because the siteswap
+        // should be repeating on the other side.
+        const loops = Math.floor(fullLandTime / this.period);
+        const landHand =
+          implicitFlip && loops % 2 === 1 ? 1 - fullLandHand : fullLandHand;
+        const landPosition: Position = {
+          juggler: landJuggler,
+          time: landTime,
+          hand: landHand,
+        };
+        // Check landing position
+        if (check.at(landPosition) <= 0) {
+          this.errorMessage = `Collision at juggler ${landJuggler}, time ${landTime}, hand ${landHand}`;
+          return false;
+        }
+        check.dec(landPosition);
+        // Add to state, first at original land time, ignoring those landing before the end of the siteswap
+        let curTime = fullLandTime - this.period;
+        let curHand = fullLandHand;
+        while (curTime >= 0) {
+          this.state.inc({juggler: landJuggler, time: curTime, hand: curHand});
+          // Back one period of the siteswap
+          if (implicitFlip) curHand = 1 - curHand;
+          curTime -= this.period;
         }
       }
     }
-    this.state = new State(states);
+    this.state.trimZeros();
+    this.state.recalc();
     this.isValid = true;
     return true;
   }

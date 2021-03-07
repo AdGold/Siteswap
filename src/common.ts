@@ -82,6 +82,18 @@ export interface Position {
   hand: Hand;
 }
 
+export function allPositions(numJugglers: number, period: number) {
+  const positions: Position[] = [];
+  for (let j = 0; j < numJugglers; j++) {
+    for (let i = 0; i < period; i++) {
+      for (const hand of [Hand.Right, Hand.Left]) {
+        positions.push({juggler: j, time: i, hand: hand});
+      }
+    }
+  }
+  return positions;
+}
+
 // A single throw, has a height, which juggler it's to and whether or not it has an 'x' (
 export class Throw {
   origHeight: number;

@@ -1,4 +1,11 @@
-import {Hand, Position, Throw, JugglerBeat, JugglerBeats} from './common';
+import {
+  Hand,
+  Position,
+  allPositions,
+  Throw,
+  JugglerBeat,
+  JugglerBeats,
+} from './common';
 import Siteswap from './siteswap';
 
 export class JugglerStateBeat {
@@ -13,6 +20,11 @@ export class JugglerStateBeat {
   increment(hand: Hand) {
     if (hand === Hand.Left) this.LH++;
     else this.RH++;
+  }
+
+  decrement(hand: Hand) {
+    if (hand === Hand.Left) this.LH--;
+    else this.RH--;
   }
 
   val(hand: Hand) {
@@ -107,24 +119,25 @@ function siteswapShorter(s1: Siteswap, s2: Siteswap) {
 
 export class State {
   jugglers: JugglerState[];
-  isGround: boolean;
-  numObjects: number;
-  numJugglers: number;
-  maxHeight: number;
+  isGround = false;
+  numObjects = 0;
+  numJugglers = 0;
+  maxHeight = 0;
 
-  constructor(jugglers: JugglerState[]) {
+  constructor(jugglers: JugglerState[], trimZeros = true) {
     this.jugglers = jugglers;
     this.numJugglers = this.jugglers.length;
-    for (const state of this.jugglers) {
-      state.removeTrailingZeros();
-    }
+    if (trimZeros) this.trimZeros();
+    this.recalc();
+  }
 
+  recalc() {
     this.numObjects = 0;
     this.maxHeight = 0;
     this.isGround = true;
     const len = this.numJugglers > 0 ? this.jugglers[0].beats.length : 0;
     for (const state of this.jugglers) {
-      // All jugglers must be within a margin or 1
+      // All jugglers must be within a margin of 1
       this.isGround &&= Math.abs(state.beats.length - len) <= 1;
       this.isGround &&= state.isPureAsync();
       this.maxHeight = Math.max(this.maxHeight, state.beats.length);
@@ -133,6 +146,30 @@ export class State {
         this.isGround &&= beat.LH + beat.RH === 1;
       }
     }
+  }
+
+  trimZeros() {
+    for (const state of this.jugglers) {
+      state.removeTrailingZeros();
+    }
+  }
+
+  at(position: Position) {
+    return this.jugglers[position.juggler].beats[position.time].val(
+      position.hand
+    );
+  }
+
+  inc(position: Position) {
+    this.jugglers[position.juggler].beats[position.time].increment(
+      position.hand
+    );
+  }
+
+  dec(position: Position) {
+    this.jugglers[position.juggler].beats[position.time].decrement(
+      position.hand
+    );
   }
 
   flip() {
@@ -209,6 +246,14 @@ export class State {
     return new State(jugglers);
   }
 
+  static Empty(numJugglers: number, maxHeight: number) {
+    const state: JugglerState[] = [];
+    for (let j = 0; j < numJugglers; j++) {
+      state.push(JugglerState.Empty(maxHeight));
+    }
+    return new State(state, /*trimZeros=*/ false);
+  }
+
   static ShortestTransitionLength(s1: State, s2: State) {
     if (s1.numObjects !== s2.numObjects) {
       throw Error('States must be for the same number of throws.');
@@ -246,18 +291,12 @@ export class State {
     //   11101
     // Lands: 2, 6
     const lands: Position[] = [];
-    for (let j = 0; j < s1.numJugglers; j++) {
-      for (let i = 0; i < s2.maxHeight; i++) {
-        for (const hand of [Hand.Right, Hand.Left]) {
-          const alreadyLanding =
-            shift + i >= s1.maxHeight
-              ? 0
-              : s1.jugglers[j].beats[shift + i].val(hand);
-          const newLanding = s2.jugglers[j].beats[i].val(hand);
-          for (let j = 0; j < newLanding - alreadyLanding; j++) {
-            lands.push({juggler: j, time: i + shift, hand: hand});
-          }
-        }
+    for (const pos of allPositions(s1.numJugglers, s2.maxHeight)) {
+      const newLanding = s2.at(pos);
+      pos.time += shift;
+      const alreadyLanding = pos.time >= s1.maxHeight ? 0 : s1.at(pos);
+      for (let j = 0; j < newLanding - alreadyLanding; j++) {
+        lands.push(pos);
       }
     }
     return lands;
