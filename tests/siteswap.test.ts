@@ -528,4 +528,8 @@ describe('KHSS Parsing', () => {
     expect(ss.errorMessage).equal('');
     expect(ss.isValid).equal(true);
   });
+
+  it('3 handed SS not allowed', () => {
+    expect(() => Siteswap.ParseKHSS('97531', 1)).to.throw();
+  });
 });

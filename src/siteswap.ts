@@ -1,9 +1,16 @@
 import {
-  allPositions, fixFraction, Hand, JugglerBeats,
-  Position, ssToInt, Throw, toLetter, unfixFraction
+  allPositions,
+  fixFraction,
+  Hand,
+  JugglerBeats,
+  Position,
+  ssToInt,
+  Throw,
+  toLetter,
+  unfixFraction,
 } from './common';
-import { parse } from './parser';
-import { State } from './state';
+import {parse} from './parser';
+import {State} from './state';
 
 export class Siteswap {
   numObjects = 0;
@@ -63,9 +70,9 @@ export class Siteswap {
       return false;
     }
 
-    this.maxMultiplex = Math.max(...this.jugglers.map(j =>
-      Math.max(...j.beats.map(b => b.maxMultiplex()))
-    ));
+    this.maxMultiplex = Math.max(
+      ...this.jugglers.map(j => Math.max(...j.beats.map(b => b.maxMultiplex())))
+    );
     this.hasPass = this.jugglers.some(j => j.beats.some(b => b.hasPass()));
     this.hasSync = this.jugglers.some(j => j.beats.some(b => b.isSync()));
     this.hasAsync = this.jugglers.some(j => j.beats.some(b => b.isAsync()));
@@ -147,7 +154,7 @@ export class Siteswap {
         let curTime = fullLandTime - this.period;
         let curHand = fullLandHand;
         while (curTime >= 0) {
-          this.state.inc({ juggler: landJuggler, time: curTime, hand: curHand });
+          this.state.inc({juggler: landJuggler, time: curTime, hand: curHand});
           // Back one period of the siteswap
           if (implicitFlip) curHand = 1 - curHand;
           curTime -= this.period;
@@ -199,11 +206,13 @@ export class Siteswap {
   }
 
   static ParseKHSS(input: string, hands: number) {
-    if (hands % 2 != 0) {
-      throw Error("k-handed siteswap parsing only implemented for even handed siteswaps");
+    if (hands % 2 !== 0) {
+      throw Error(
+        'k-handed siteswap parsing only implemented for even handed siteswaps'
+      );
     }
     const numJugglers = hands / 2;
-    const fix36 = numJugglers % 3 == 0;
+    const fix36 = numJugglers % 3 === 0;
     const jugglers: Throw[][][] = [];
     for (let i = 0; i < numJugglers; i++) {
       jugglers.push([]);
@@ -215,24 +224,29 @@ export class Siteswap {
       // Convert to local height and make more readable
       const height = unfixFraction(fullThrow / numJugglers, fix36);
       // Non multiples are passes
-      const isPass = fullThrow % numJugglers != 0;
+      const isPass = fullThrow % numJugglers !== 0;
       // This checks the parity of the number of times the throw height crosses the last juggler
-      const hasX = isPass && ((fullThrow + j) % hands < hands / 2);
+      const hasX = isPass && (fullThrow + j) % hands < hands / 2;
       // If it's not a pass to the next juggler, add who it's passed to
-      const passTo = (isPass && (fullThrow % numJugglers != 1)) ? (fullThrow + j) % numJugglers : undefined;
+      const passTo =
+        isPass && fullThrow % numJugglers !== 1
+          ? (fullThrow + j) % numJugglers
+          : undefined;
       const th = new Throw(height, hasX, isPass, passTo);
       // The height use earlier is the nice one - this is the exact one for use internally
       th.height = fullThrow / numJugglers;
       jugglers[j].push([th]);
       j = (j + 1) % numJugglers;
       i = (i + 1) % input.length;
-      if (i == 0 && j == 0) {
+      if (i === 0 && j === 0) {
         // We've reached the start after enough repetitions
         break;
       }
     }
     const jugglerBeats = jugglers.map(ths => new JugglerBeats(ths));
-    const delays = Array.from(new Array(numJugglers), (x, i) => unfixFraction(i / numJugglers, fix36));
+    const delays = Array.from(new Array(numJugglers), (x, i) =>
+      unfixFraction(i / numJugglers, fix36)
+    );
     return new Siteswap(jugglerBeats, delays);
   }
 }

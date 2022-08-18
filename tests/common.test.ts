@@ -1,6 +1,17 @@
 import {
-  fixFraction, floatToSS, fromLetter, Hand, intToSS, JugglerBeat,
-  JugglerBeats, Position, ssToFloat, ssToInt, Throw, toLetter, unfixFraction
+  fixFraction,
+  floatToSS,
+  fromLetter,
+  Hand,
+  intToSS,
+  JugglerBeat,
+  JugglerBeats,
+  Position,
+  ssToFloat,
+  ssToInt,
+  Throw,
+  toLetter,
+  unfixFraction,
 } from '../src/common';
 
 import * as chai from 'chai';
@@ -225,26 +236,26 @@ describe('Throw', () => {
   });
 
   it('From positions, 6', () => {
-    const p1: Position = { juggler: 1, time: 0, hand: Hand.Left };
-    const p2: Position = { juggler: 1, time: 6, hand: Hand.Left };
+    const p1: Position = {juggler: 1, time: 0, hand: Hand.Left};
+    const p2: Position = {juggler: 1, time: 6, hand: Hand.Left};
     expect(Throw.FromPositions(p1, p2).toString()).equal('6');
   });
 
   it('From positions, 4x', () => {
-    const p1: Position = { juggler: 1, time: 2, hand: Hand.Left };
-    const p2: Position = { juggler: 1, time: 6, hand: Hand.Right };
+    const p1: Position = {juggler: 1, time: 2, hand: Hand.Left};
+    const p2: Position = {juggler: 1, time: 6, hand: Hand.Right};
     expect(Throw.FromPositions(p1, p2).toString()).equal('4x');
   });
 
   it('From positions, 3pC', () => {
-    const p1: Position = { juggler: 1, time: 2, hand: Hand.Left };
-    const p2: Position = { juggler: 2, time: 5, hand: Hand.Right };
+    const p1: Position = {juggler: 1, time: 2, hand: Hand.Left};
+    const p2: Position = {juggler: 2, time: 5, hand: Hand.Right};
     expect(Throw.FromPositions(p1, p2).toString()).equal('3pC');
   });
 
   it('From positions, 3pxE', () => {
-    const p1: Position = { juggler: 1, time: 2, hand: Hand.Left };
-    const p2: Position = { juggler: 4, time: 5, hand: Hand.Left };
+    const p1: Position = {juggler: 1, time: 2, hand: Hand.Left};
+    const p2: Position = {juggler: 4, time: 5, hand: Hand.Left};
     expect(Throw.FromPositions(p1, p2).toString()).equal('3pxE');
   });
 
@@ -300,7 +311,13 @@ describe('JugglerBeat', () => {
 
   it('Big multiplex beat', () => {
     const beat = new JugglerBeat(
-      [], [new Throw(8, false, false), new Throw(4, false, false), new Throw(10, false, false), new Throw(6, false, false)]
+      [],
+      [
+        new Throw(8, false, false),
+        new Throw(4, false, false),
+        new Throw(10, false, false),
+        new Throw(6, false, false),
+      ]
     );
     expect(beat.isAsync()).equal(true);
     expect(beat.isSync()).equal(false);

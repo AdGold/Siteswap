@@ -97,7 +97,7 @@ export function allPositions(numJugglers: number, period: number) {
   for (let j = 0; j < numJugglers; j++) {
     for (let i = 0; i < period; i++) {
       for (const hand of [Hand.Right, Hand.Left]) {
-        positions.push({ juggler: j, time: i, hand: hand });
+        positions.push({juggler: j, time: i, hand: hand});
       }
     }
   }
