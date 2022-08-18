@@ -312,6 +312,28 @@ describe('State', () => {
       expect(state.exit().toString()).equal('30');
     });
 
+    it('Basic transition - custom from/to', () => {
+      const state = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      const other = new State([
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      expect(state.entry(other).toString()).equal('5');
+      expect(state.exit(other).toString()).equal('1');
+    });
+
     it('Basic transition - other hand', () => {
       const state = new State([
         new JugglerState([
@@ -354,6 +376,64 @@ describe('State', () => {
         ]),
       ]);
       expect(state.entry().toString()).equal('4x5x45');
+    });
+
+    it('Shortest transition needs a flip', () => {
+      const state1 = new State([
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+        ]),
+      ]);
+      const state2 = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      expect(State.ShortestTransition(state1, state2, true).toString()).equal('45');
+      expect(State.ShortestTransition(state1, state2, false).toString()).equal('L345');
+    });
+
+    it('Invalid states - mismatched number of balls', () => {
+      const state1 = new State([
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+        ]),
+      ]);
+      const state2 = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      expect(() => State.ShortestTransition(state1, state2, true)).to.throw();
+    });
+
+    it('Invalid states - mismatched number of jugglers', () => {
+      const state1 = new State([
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+        ]),
+      ]);
+      const state2 = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+        ]),
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+        ]),
+      ]);
+      expect(() => State.ShortestTransition(state1, state2, true)).to.throw();
     });
   });
 });
