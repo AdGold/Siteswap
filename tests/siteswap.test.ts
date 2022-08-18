@@ -1,4 +1,4 @@
-import {Siteswap} from '../src/siteswap';
+import { Siteswap } from '../src/siteswap';
 
 import * as chai from 'chai';
 
@@ -455,5 +455,77 @@ describe('Siteswap state calculations', () => {
     expect(ss.state.toString()).equal('<1111|111>');
     expect(ss.state.numObjects).equal(7);
     expect(ss.state.isGround).equal(true);
+  });
+});
+
+describe('KHSS Parsing', () => {
+  it('2 handed SS', () => {
+    const ss = Siteswap.ParseKHSS('97531', 2);
+    expect(ss.toString()).equal('97531');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
+  });
+
+  it('Even period 4 handed SS, no passes', () => {
+    const ss = Siteswap.ParseKHSS('86', 4);
+    expect(ss.toString()).equal('{0,0.5}<4|3>');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
+  });
+
+  it('Even period 4 handed SS, only passes', () => {
+    const ss = Siteswap.ParseKHSS('79', 4);
+    expect(ss.toString()).equal('{0,0.5}<3.5p|4.5p>');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
+  });
+
+  it('Even period 4 handed SS, only passes', () => {
+    const ss = Siteswap.ParseKHSS('97', 4);
+    expect(ss.toString()).equal('{0,0.5}<4.5px|3.5px>');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
+  });
+
+  it('Even period 4 handed SS, some passes', () => {
+    const ss = Siteswap.ParseKHSS('966867', 4);
+    expect(ss.toString()).equal('{0,0.5}<4.5px33|343.5px>');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
+  });
+
+  it('Period 1, 4 handed SS', () => {
+    const ss = Siteswap.ParseKHSS('7', 4);
+    expect(ss.toString()).equal('{0,0.5}<3.5p|3.5px>');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
+  });
+
+  it('Odd period 4 handed SS, some passes', () => {
+    const ss = Siteswap.ParseKHSS('867', 4);
+    expect(ss.toString()).equal('{0,0.5}<43.5p3|343.5px>');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
+  });
+
+  it('Odd period 4 handed SS, only passes', () => {
+    const ss = Siteswap.ParseKHSS('975', 4);
+    expect(ss.toString()).equal('{0,0.5}<4.5px2.5px3.5p|3.5px4.5p2.5p>');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
+  });
+
+  it('Simple 6 handed SS, period 1', () => {
+    const ss = Siteswap.ParseKHSS('7', 6);
+    expect(ss.toString()).equal('{0,0.3,0.6}<2.3px|2.3px|2.3p>');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
+  });
+
+  it('6 handed SS, period 3', () => {
+    const ss = Siteswap.ParseKHSS('567', 6);
+    expect(ss.toString()).equal('{0,0.3,0.6}<1.6pC|2|2.3p>');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
   });
 });

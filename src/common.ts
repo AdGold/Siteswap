@@ -76,6 +76,16 @@ export function fixFraction(n: number, allow36 = false) {
   return n;
 }
 
+export function unfixFraction(n: number, allow36 = false) {
+  const whole = Math.floor(n);
+  const frac = n % 1;
+  if (frac === 0) return n;
+  if (allow36 && Math.abs(frac - 1 / 3) < EPS) return whole + 0.3;
+  if (allow36 && Math.abs(frac - 2 / 3) < EPS) return whole + 0.6;
+  // Otherwise, just round to 2 decimal places
+  return Math.round(n * 100) / 100;
+}
+
 export interface Position {
   juggler: number;
   time: number;
@@ -87,14 +97,14 @@ export function allPositions(numJugglers: number, period: number) {
   for (let j = 0; j < numJugglers; j++) {
     for (let i = 0; i < period; i++) {
       for (const hand of [Hand.Right, Hand.Left]) {
-        positions.push({juggler: j, time: i, hand: hand});
+        positions.push({ juggler: j, time: i, hand: hand });
       }
     }
   }
   return positions;
 }
 
-// A single throw, has a height, which juggler it's to and whether or not it has an 'x' (
+// A single throw, has a height, which juggler it's to and whether or not it has an 'x'
 export class Throw {
   origHeight: number;
   height: number;

@@ -1,16 +1,6 @@
 import {
-  toLetter,
-  fromLetter,
-  intToSS,
-  floatToSS,
-  ssToInt,
-  ssToFloat,
-  fixFraction,
-  Hand,
-  Position,
-  Throw,
-  JugglerBeat,
-  JugglerBeats,
+  fixFraction, floatToSS, fromLetter, Hand, intToSS, JugglerBeat,
+  JugglerBeats, Position, ssToFloat, ssToInt, Throw, toLetter, unfixFraction
 } from '../src/common';
 
 import * as chai from 'chai';
@@ -152,6 +142,35 @@ describe('Conversions', () => {
       expect(fixFraction(1.47)).equal(1.47);
     });
   });
+
+  describe('unfixFraction', () => {
+    it('Whole numbers are not changed', () => {
+      for (let i = 0; i < 36; i++) {
+        expect(unfixFraction(i)).equal(i);
+      }
+    });
+    it('1/3 goes to 0.3 when allowed', () => {
+      expect(unfixFraction(10 + 1 / 3, true)).equal(10.3);
+    });
+    it('1/3 does not go to 0.3 when not allowed', () => {
+      expect(unfixFraction(10 + 1 / 3)).equal(10.33);
+    });
+    it('2/3 goes to 0.6 when allowed', () => {
+      expect(unfixFraction(10 + 2 / 3, true)).equal(10.6);
+    });
+    it('2/3 does not go to 0.6 when not allowed', () => {
+      expect(unfixFraction(1 + 2 / 3)).equal(1.67);
+    });
+    it('1/6 goes to 0.17', () => {
+      expect(unfixFraction(1 + 1 / 6)).equal(1.17);
+    });
+    it('4/9 goes to 0.44', () => {
+      expect(unfixFraction(1 + 4 / 9)).equal(1.44);
+    });
+    it('.47 remains unchanged', () => {
+      expect(unfixFraction(1.47)).equal(1.47);
+    });
+  });
 });
 
 describe('Throw', () => {
@@ -206,26 +225,26 @@ describe('Throw', () => {
   });
 
   it('From positions, 6', () => {
-    const p1: Position = {juggler: 1, time: 0, hand: Hand.Left};
-    const p2: Position = {juggler: 1, time: 6, hand: Hand.Left};
+    const p1: Position = { juggler: 1, time: 0, hand: Hand.Left };
+    const p2: Position = { juggler: 1, time: 6, hand: Hand.Left };
     expect(Throw.FromPositions(p1, p2).toString()).equal('6');
   });
 
   it('From positions, 4x', () => {
-    const p1: Position = {juggler: 1, time: 2, hand: Hand.Left};
-    const p2: Position = {juggler: 1, time: 6, hand: Hand.Right};
+    const p1: Position = { juggler: 1, time: 2, hand: Hand.Left };
+    const p2: Position = { juggler: 1, time: 6, hand: Hand.Right };
     expect(Throw.FromPositions(p1, p2).toString()).equal('4x');
   });
 
   it('From positions, 3pC', () => {
-    const p1: Position = {juggler: 1, time: 2, hand: Hand.Left};
-    const p2: Position = {juggler: 2, time: 5, hand: Hand.Right};
+    const p1: Position = { juggler: 1, time: 2, hand: Hand.Left };
+    const p2: Position = { juggler: 2, time: 5, hand: Hand.Right };
     expect(Throw.FromPositions(p1, p2).toString()).equal('3pC');
   });
 
   it('From positions, 3pxE', () => {
-    const p1: Position = {juggler: 1, time: 2, hand: Hand.Left};
-    const p2: Position = {juggler: 4, time: 5, hand: Hand.Left};
+    const p1: Position = { juggler: 1, time: 2, hand: Hand.Left };
+    const p2: Position = { juggler: 4, time: 5, hand: Hand.Left };
     expect(Throw.FromPositions(p1, p2).toString()).equal('3pxE');
   });
 
