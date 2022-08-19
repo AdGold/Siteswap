@@ -4,9 +4,9 @@ import {
   JugglerBeat,
   JugglerBeats,
   Position,
-  Throw
+  Throw,
 } from './common';
-import { Siteswap } from './siteswap';
+import {Siteswap} from './siteswap';
 
 export class JugglerStateBeat {
   LH: number;
@@ -125,7 +125,11 @@ export class State {
   numJugglers = 0;
   maxHeight = 0;
 
-  constructor(jugglers: JugglerState[], trimZeros = true, jugglerDelays?: number[]) {
+  constructor(
+    jugglers: JugglerState[],
+    trimZeros = true,
+    jugglerDelays?: number[]
+  ) {
     this.jugglers = jugglers;
     this.numJugglers = this.jugglers.length;
     this.jugglerDelays = jugglerDelays
@@ -268,7 +272,9 @@ export class State {
     }
     // TODO: there really should be a built in way of comparing arrays...
     if (!s1.jugglerDelays.every((v, i) => v === s2.jugglerDelays[i])) {
-      throw Error('Transitions between states with different juggler delays are not supported.')
+      throw Error(
+        'Transitions between states with different juggler delays are not supported.'
+      );
     }
   }
 
@@ -324,7 +330,7 @@ export class State {
         const beat: Throw[][] = [[], []];
         for (const hand of [Hand.Right, Hand.Left]) {
           for (let k = 0; k < s.jugglers[j].beats[i].val(hand); k++) {
-            const start: Position = { juggler: j, time: i, hand: hand };
+            const start: Position = {juggler: j, time: i, hand: hand};
             beat[hand].push(Throw.FromPositions(start, land_times[upto]));
             upto++;
           }

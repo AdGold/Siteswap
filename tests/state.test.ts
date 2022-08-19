@@ -1,5 +1,5 @@
-import { Hand } from '../src/common';
-import { JugglerState, JugglerStateBeat, State } from '../src/state';
+import {Hand} from '../src/common';
+import {JugglerState, JugglerStateBeat, State} from '../src/state';
 
 import * as chai from 'chai';
 
@@ -508,14 +508,14 @@ describe('State', () => {
     });
 
     it('Invalid states - different juggler delays', () => {
-      const state = new State([
-        new JugglerState([
-          new JugglerStateBeat(1, 0),
-        ]),
-        new JugglerState([
-          new JugglerStateBeat(0, 1),
-        ]),
-      ], true, [0, 0.5]);
+      const state = new State(
+        [
+          new JugglerState([new JugglerStateBeat(1, 0)]),
+          new JugglerState([new JugglerStateBeat(0, 1)]),
+        ],
+        true,
+        [0, 0.5]
+      );
       expect(() => state.entry().toString()).to.throw();
       expect(() => state.exit().toString()).to.throw();
     });
