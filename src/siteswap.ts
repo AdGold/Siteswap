@@ -38,7 +38,7 @@ export class Siteswap {
       ? jugglerDelays
       : new Array(jugglers.length).fill(0);
     // Make compiler happy
-    this.state = new State([]);
+    this.state = new State([], true, jugglerDelays);
     this.validate();
   }
 
@@ -219,7 +219,7 @@ export class Siteswap {
     }
     let j = 0;
     let i = 0;
-    while (true) {
+    while (i >= 0) {
       const fullThrow = ssToInt(input[i]);
       // Convert to local height and make more readable
       const height = unfixFraction(fullThrow / numJugglers, fix36);

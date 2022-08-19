@@ -1,4 +1,4 @@
-import { Siteswap } from '../src/siteswap';
+import {Siteswap} from '../src/siteswap';
 
 import * as chai from 'chai';
 

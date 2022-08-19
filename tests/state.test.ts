@@ -1,5 +1,5 @@
-import {Hand} from '../src/common';
-import {State, JugglerState, JugglerStateBeat} from '../src/state';
+import { Hand } from '../src/common';
+import { JugglerState, JugglerStateBeat, State } from '../src/state';
 
 import * as chai from 'chai';
 
@@ -297,7 +297,7 @@ describe('State', () => {
     });
   });
 
-  describe('State transitions', () => {
+  describe('Shortest state transitions', () => {
     it('Basic transition', () => {
       const state = new State([
         new JugglerState([
@@ -365,7 +365,38 @@ describe('State', () => {
       expect(state.exit().toString()).equal('60500');
     });
 
-    it('Basic transition - other hand', () => {
+    it('Sync to sync transition', () => {
+      const state = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 1),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 1),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      const other = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 1),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 1),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(0, 1),
+        ]),
+      ]);
+      // Shortest transition includes flips so is empty
+      expect(state.entry(other).toString()).equal('');
+      expect(state.exit(other).toString()).equal('');
+      // Not allowing flips forces throws
+      expect(State.ShortestTransition(other, state, false).toString()).equal(
+        '(4x,6)'
+      );
+      expect(State.ShortestTransition(state, other, false).toString()).equal(
+        '(4,6x)'
+      );
+    });
+
+    it('Async to sync transition', () => {
       const state = new State([
         new JugglerState([
           new JugglerStateBeat(1, 1),
@@ -376,6 +407,40 @@ describe('State', () => {
         ]),
       ]);
       expect(state.entry().toString()).equal('4x5x45');
+      expect(state.exit().toString()).equal('(3,5x)(4,5x)!');
+    });
+
+    it('Passing state transition', () => {
+      const state = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+        ]),
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      const other = new State([
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+        ]),
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+        ]),
+      ]);
+      expect(State.BasicTransition(state, other).toString()).equal('<3|L4pA>');
+      expect(State.BasicTransition(other, state).toString()).equal('<L3pxB|4>');
     });
 
     it('Shortest transition needs a flip', () => {
@@ -395,8 +460,16 @@ describe('State', () => {
           new JugglerStateBeat(1, 0),
         ]),
       ]);
-      expect(State.ShortestTransition(state1, state2, true).toString()).equal('45');
-      expect(State.ShortestTransition(state1, state2, false).toString()).equal('L345');
+      expect(State.ShortestTransition(state1, state2, true).toString()).equal(
+        '45'
+      );
+      expect(State.ShortestTransition(state1, state2, false).toString()).equal(
+        'L345'
+      );
+      // Requires second state to be flipped rather than first
+      expect(
+        State.ShortestTransition(state1.flip(), state2.flip(), true).toString()
+      ).equal('45');
     });
 
     it('Invalid states - mismatched number of balls', () => {
@@ -408,9 +481,7 @@ describe('State', () => {
         ]),
       ]);
       const state2 = new State([
-        new JugglerState([
-          new JugglerStateBeat(1, 0),
-        ]),
+        new JugglerState([new JugglerStateBeat(1, 0)]),
       ]);
       expect(() => State.ShortestTransition(state1, state2, true)).to.throw();
     });
@@ -434,6 +505,150 @@ describe('State', () => {
         ]),
       ]);
       expect(() => State.ShortestTransition(state1, state2, true)).to.throw();
+    });
+
+    it('Invalid states - different juggler delays', () => {
+      const state = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+        ]),
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+        ]),
+      ], true, [0, 0.5]);
+      expect(() => state.entry().toString()).to.throw();
+      expect(() => state.exit().toString()).to.throw();
+    });
+  });
+
+  describe('All state transitions', () => {
+    it('Only one transition', () => {
+      const state = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      const other = new State([
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      expect(
+        Array.from(State.AllTransitionsOfLength(other, state, 1)).map(s =>
+          s.toString()
+        )
+      ).to.have.members(['L5']);
+      expect(
+        Array.from(State.AllTransitionsOfLength(state, other, 1)).map(s =>
+          s.toString()
+        )
+      ).to.have.members(['1']);
+    });
+
+    it('Two transitions', () => {
+      const state = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      const other = new State([
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      expect(
+        Array.from(State.AllTransitionsOfLength(other, state, 3)).map(s =>
+          s.toString()
+        )
+      ).to.have.members(['L560', 'L740']);
+      expect(
+        Array.from(State.AllTransitionsOfLength(state, other, 3)).map(s =>
+          s.toString()
+        )
+      ).to.have.members(['304', '601']);
+    });
+
+    it('No transitions', () => {
+      const state = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      const other = new State([
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(1, 0),
+        ]),
+      ]);
+      expect(
+        Array.from(State.AllTransitionsOfLength(other, state, 2)).map(s =>
+          s.toString()
+        )
+      ).to.have.members([]);
+      expect(
+        Array.from(State.AllTransitionsOfLength(state, other, 2)).map(s =>
+          s.toString()
+        )
+      ).to.have.members([]);
+    });
+
+    it('Invalid states - mismatched number of balls', () => {
+      const state1 = new State([
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+        ]),
+      ]);
+      const state2 = new State([
+        new JugglerState([new JugglerStateBeat(1, 0)]),
+      ]);
+      expect(() =>
+        Array.from(State.AllTransitionsOfLength(state1, state2, 1))
+      ).to.throw();
+    });
+
+    it('Invalid states - mismatched number of jugglers', () => {
+      const state1 = new State([
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+        ]),
+      ]);
+      const state2 = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+        ]),
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 0),
+        ]),
+      ]);
+      expect(() =>
+        Array.from(State.AllTransitionsOfLength(state1, state2, 1))
+      ).to.throw();
     });
   });
 });

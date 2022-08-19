@@ -1,12 +1,12 @@
 import {
-  Hand,
-  Position,
   allPositions,
-  Throw,
+  Hand,
   JugglerBeat,
   JugglerBeats,
+  Position,
+  Throw
 } from './common';
-import {Siteswap} from './siteswap';
+import { Siteswap } from './siteswap';
 
 export class JugglerStateBeat {
   LH: number;
@@ -119,14 +119,18 @@ function siteswapShorter(s1: Siteswap, s2: Siteswap) {
 
 export class State {
   jugglers: JugglerState[];
+  jugglerDelays: number[];
   isGround = false;
   numObjects = 0;
   numJugglers = 0;
   maxHeight = 0;
 
-  constructor(jugglers: JugglerState[], trimZeros = true) {
+  constructor(jugglers: JugglerState[], trimZeros = true, jugglerDelays?: number[]) {
     this.jugglers = jugglers;
     this.numJugglers = this.jugglers.length;
+    this.jugglerDelays = jugglerDelays
+      ? jugglerDelays
+      : new Array(jugglers.length).fill(0);
     if (trimZeros) this.trimZeros();
     this.recalc();
   }
@@ -155,9 +159,8 @@ export class State {
   }
 
   at(position: Position) {
-    return this.jugglers[position.juggler].beats[position.time].val(
-      position.hand
-    );
+    const beat = this.jugglers[position.juggler].beats[position.time];
+    return beat === undefined ? 0 : beat.val(position.hand);
   }
 
   inc(position: Position) {
@@ -197,7 +200,9 @@ export class State {
   }
 
   globalStateBeat(time: number) {
-    return this.jugglers.map(state => state.beats[time]);
+    return this.jugglers.map(state =>
+      time < state.beats.length ? state.beats[time] : new JugglerStateBeat(0, 0)
+    );
   }
 
   /*
@@ -254,30 +259,38 @@ export class State {
     return new State(state, /*trimZeros=*/ false);
   }
 
-  static ShortestTransitionLength(s1: State, s2: State) {
+  static IsTransitionValid(s1: State, s2: State) {
     if (s1.numObjects !== s2.numObjects) {
-      throw Error('States must be for the same number of throws.');
+      throw Error('States must be for the same number of objects.');
     }
     if (s1.numJugglers !== s2.numJugglers) {
       throw Error('States must be for the same number of jugglers.');
     }
-    // Find the first shift where s2 is >= s1 at all points, e.g.
+    // TODO: there really should be a built in way of comparing arrays...
+    if (!s1.jugglerDelays.every((v, i) => v === s2.jugglerDelays[i])) {
+      throw Error('Transitions between states with different juggler delays are not supported.')
+    }
+  }
+
+  static IsShiftValid(s1: State, s2: State, shift: number) {
+    // Shift is valid when s2 is >= s1 at all points, e.g.
     // 11011
     //   11101
+    for (let i = 0; i < Math.min(s2.maxHeight, s1.maxHeight - shift); i++) {
+      const globalBeat1 = s1.globalStateBeat(shift + i);
+      const globalBeat2 = s2.globalStateBeat(i);
+      if (!globalBeat1.every((beat, i) => beat.isLessOrEqual(globalBeat2[i]))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static ShortestTransitionLength(s1: State, s2: State) {
+    State.IsTransitionValid(s1, s2);
     let shift = Math.max(0, s1.maxHeight - s2.maxHeight);
     for (; shift <= s1.maxHeight; shift++) {
-      let valid = true;
-      for (let i = 0; i < Math.min(s2.maxHeight, s1.maxHeight - shift); i++) {
-        const globalBeat1 = s1.globalStateBeat(shift + i);
-        const globalBeat2 = s2.globalStateBeat(i);
-        if (
-          !globalBeat1.every((beat, i) => beat.isLessOrEqual(globalBeat2[i]))
-        ) {
-          valid = false;
-          break;
-        }
-      }
-      if (valid) {
+      if (State.IsShiftValid(s1, s2, shift)) {
         return shift;
       }
     }
@@ -302,6 +315,27 @@ export class State {
     return lands;
   }
 
+  static GetTransition(s: State, length: number, land_times: Position[]) {
+    let upto = 0;
+    const jugglers = [];
+    for (let j = 0; j < s.numJugglers; j++) {
+      const jugglerBeats = [];
+      for (let i = 0; i < length; i++) {
+        const beat: Throw[][] = [[], []];
+        for (const hand of [Hand.Right, Hand.Left]) {
+          for (let k = 0; k < s.jugglers[j].beats[i].val(hand); k++) {
+            const start: Position = { juggler: j, time: i, hand: hand };
+            beat[hand].push(Throw.FromPositions(start, land_times[upto]));
+            upto++;
+          }
+        }
+        jugglerBeats.push(new JugglerBeat(beat[0], beat[1]));
+      }
+      jugglers.push(new JugglerBeats(jugglerBeats));
+    }
+    return new Siteswap(jugglers);
+  }
+
   static ShortestTransition(s1: State, s2: State, allowFlipped: boolean) {
     let best = State.BasicTransition(s1, s2);
     if (allowFlipped) {
@@ -317,37 +351,42 @@ export class State {
 
   static BasicTransition(s1: State, s2: State) {
     const length = State.ShortestTransitionLength(s1, s2);
-    let lands = State.FindLandings(s1, s2, length);
+    const lands = State.FindLandings(s1, s2, length);
     // Match landing positions to throw positions to get throws.
     // 0 -> 2  :::  2
     // 1 -> 6  :::  5
-    const jugglers = [];
-    for (let j = 0; j < s1.numJugglers; j++) {
-      const jugglerBeats = [];
-      for (let i = 0; i < length; i++) {
-        const beat: Throw[][] = [[], []];
-        for (const hand of [Hand.Right, Hand.Left]) {
-          for (let k = 0; k < s1.jugglers[j].beats[i].val(hand); k++) {
-            const start: Position = {juggler: j, time: i, hand: hand};
-            beat[hand].push(Throw.FromPositions(start, lands[0]));
-            lands = lands.slice(1);
-          }
-        }
-        jugglerBeats.push(new JugglerBeat(beat[0], beat[1]));
-      }
-      jugglers.push(new JugglerBeats(jugglerBeats));
-    }
-    return new Siteswap(jugglers);
+    return State.GetTransition(s1, length, lands);
   }
 
-  /*
-    static AllTransitionsOfLength(s1: State, s2: State, length: number) {
-        const lands = State.FindLandingTimes(s1, s2, length);
-        // Find all valid (don't give negative throws) matchings between landing/throwing positions.
-        // 0, 1 -> 2, 6  ::: 25 & 61
-        const seen = new Map();
-        // TODO
+  static *AllTransitionsOfLength(s1: State, s2: State, length: number) {
+    State.IsTransitionValid(s1, s2);
+    if (!State.IsShiftValid(s1, s2, length)) {
+      return;
     }
+    const land_times = State.FindLandings(s1, s2, length);
+    yield State.GetTransition(s1, length, land_times);
+    // Find all valid (don't give negative throws) matchings between landing/throwing positions.
+    // 0, 1 -> 2, 6  :::  25 & 61
+    const perm_length = land_times.length;
+    const c = new Array(perm_length).fill(0);
+    let i = 1,
+      k,
+      p;
 
-    //*/
+    while (i < perm_length) {
+      if (c[i] < i) {
+        k = i % 2 && c[i];
+        p = land_times[i];
+        land_times[i] = land_times[k];
+        land_times[k] = p;
+        ++c[i];
+        i = 1;
+        const t = State.GetTransition(s1, length, land_times);
+        yield t;
+      } else {
+        c[i] = 0;
+        ++i;
+      }
+    }
+  }
 }
