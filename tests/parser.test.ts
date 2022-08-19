@@ -1,4 +1,4 @@
-import {parse} from '../src/parser';
+import { parse } from '../src/parser';
 
 import * as chai from 'chai';
 
@@ -14,8 +14,14 @@ describe('Parse errors', () => {
   it('Unmatched parens', () => {
     expect(() => parse('(4,4')).to.throw();
   });
+  it('Unmatched angled', () => {
+    expect(() => parse('<4|4')).to.throw();
+  });
   it('No jugglers', () => {
     expect(() => parse('<>')).to.throw();
+  });
+  it('Missing second juggler', () => {
+    expect(() => parse('<1|>')).to.throw();
   });
   it('Empty multiplex', () => {
     expect(() => parse('[]')).to.throw();
@@ -40,5 +46,9 @@ describe('Parse errors', () => {
   });
   it('Extra characters', () => {
     expect(() => parse('531#')).to.throw();
+  });
+  it('Bad characters', () => {
+    expect(() => parse('\x03')).to.throw();
+    expect(() => parse('\x13')).to.throw();
   });
 });
