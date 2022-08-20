@@ -262,8 +262,50 @@ describe('Siteswap examples', () => {
       expect(ss.toString()).equals('{0,0.5}<3.5p|3.5px>');
     });
 
-    it('Weird fractional passes {0,0.3} <3.3p|3.7px>', () => {
-      const ss = Siteswap.Parse('{0,0.3} <3.3p|3.7px>');
+    it('Inferred delays <3.5p|3.5px>', () => {
+      const ss = Siteswap.Parse('<3.5p|3.5px>');
+      expect(ss.errorMessage).equals('');
+      expect(ss.isValid).equals(true);
+      expect(ss.numJugglers).equals(2);
+      expect(ss.numObjects).equals(7);
+      expect(ss.period).equals(1);
+      expect(ss.maxHeight).equals(3.5);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
+      expect(ss.toString()).equals('{0,0.5}<3.5p|3.5px>');
+    });
+
+    it('Inferred delays 3 jugglers <3.3p3|3.3p3|4.3p3>', () => {
+      const ss = Siteswap.Parse('<3.3p3|3.3p3|4.3p3>');
+      expect(ss.errorMessage).equals('');
+      expect(ss.isValid).equals(true);
+      expect(ss.numJugglers).equals(3);
+      expect(ss.numObjects).equals(10);
+      expect(ss.period).equals(2);
+      expect(ss.maxHeight).equals(4 + 1 / 3);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
+      expect(ss.toString()).equals('{0,0.3,0.6}<3.3p3|3.3p3|4.3p3>');
+    });
+
+    it('Invalid inferred delays <3.5|3.5>', () => {
+      const ss = Siteswap.Parse('<3.5|3.5>');
+      expect(ss.errorMessage).equals('Cannot find consistent juggler delays: self throw of height 3.5');
+      expect(ss.isValid).equals(false);
+    });
+
+    it('Invalid inferred delays <3.5p|3px>', () => {
+      const ss = Siteswap.Parse('<3.5p|3px>');
+      expect(ss.errorMessage).equals('Cannot find consistent juggler delays: juggler B has delays of 0 and 0.5');
+      expect(ss.isValid).equals(false);
+    });
+
+    it('Infer weird fractional passes {0,0.3} <3.3p|3.7px>', () => {
+      const ss = Siteswap.Parse('<3.3p|3.7px>');
       expect(ss.errorMessage).equals('');
       expect(ss.isValid).equals(true);
       expect(ss.numJugglers).equals(2);

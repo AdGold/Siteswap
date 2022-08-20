@@ -36,10 +36,50 @@ export class Siteswap {
     // Default to all delays 0
     this.jugglerDelays = jugglerDelays
       ? jugglerDelays
-      : new Array(jugglers.length).fill(0);
+      : new Array(jugglers.length).fill(-1);
     // Make compiler happy
     this.state = new State([], true, jugglerDelays);
     this.validate();
+  }
+
+  inferJugglerDelays() {
+    if (!this.jugglerDelays.every(x => x === -1) || this.numJugglers === 1) {
+      // We were given delays, don't infer them
+      return true;
+    }
+    this.jugglerDelays[0] = 0;
+    const allowed_jugglers = [0];
+    while (allowed_jugglers.length > 0) {
+      const juggler = allowed_jugglers.pop()!;
+      for (let i = 0; i < this.period; i++) {
+        for (const hand of [Hand.Right, Hand.Left]) {
+          const pos: Position = { juggler: juggler, time: i, hand: hand };
+          for (const th of this.throwsAt(pos)) {
+            if (th.pass) {
+              const to = th.passTo ? th.passTo : (juggler + 1) % this.numJugglers;
+              const land_frac = (this.jugglerDelays[juggler] + th.height) % 1;
+              if (this.jugglerDelays[to] === -1) {
+                this.jugglerDelays[to] = land_frac;
+                allowed_jugglers.push(to);
+              } else if (Math.abs(this.jugglerDelays[to] - land_frac) > 1e-2) {
+                const jugglerName = toLetter(juggler, 'A');
+                this.errorMessage = `Cannot find consistent juggler delays: juggler ${jugglerName} has delays of ${this.jugglerDelays[to]} and ${land_frac}`;
+                return false;
+              }
+            } else {
+              if (th.height % 1 !== 0) {
+                this.errorMessage = `Cannot find consistent juggler delays: self throw of height ${th.height}`;
+                return false;
+              }
+            }
+          }
+        }
+      }
+    }
+    for (let i = 0; i < this.numJugglers; i++) {
+      this.jugglerDelays[i] = unfixFraction(this.jugglerDelays[i], this.numJugglers % 3 === 0);
+    }
+    return true;
   }
 
   throwsAt(position: Position) {
@@ -62,6 +102,11 @@ export class Siteswap {
       return false;
     }
 
+    if (!this.inferJugglerDelays()) {
+      // Couldn't find consistent juggler delays
+      return false;
+    }
+
     // Convert .3 and .6 to 1/3 and 2/3 when we have a multiple of 3 jugglers
     const allow36 = this.numJugglers % 3 === 0;
     const jugglerDelays = this.jugglerDelays.map(d => fixFraction(d, allow36));
@@ -79,9 +124,7 @@ export class Siteswap {
 
     this.maxHeight = 0;
     let sum = 0;
-    // check stores the number of throws which should land for each juggler, beat and hand
-    // First index = juggler, second index = beat, third index = hand
-    // const check: number[][][] = [];
+    // `check` stores the number of throws which should land for each juggler, beat and hand
     const check = State.Empty(this.numJugglers, this.period);
     for (const pos of allPositions(this.numJugglers, this.period)) {
       for (const th of this.throwsAt(pos)) {
@@ -154,7 +197,7 @@ export class Siteswap {
         let curTime = fullLandTime - this.period;
         let curHand = fullLandHand;
         while (curTime >= 0) {
-          this.state.inc({juggler: landJuggler, time: curTime, hand: curHand});
+          this.state.inc({ juggler: landJuggler, time: curTime, hand: curHand });
           // Back one period of the siteswap
           if (implicitFlip) curHand = 1 - curHand;
           curTime -= this.period;
