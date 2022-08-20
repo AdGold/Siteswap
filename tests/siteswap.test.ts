@@ -281,7 +281,52 @@ describe('Siteswap examples', () => {
       expect(ss.hasAsync).equals(true);
       expect(ss.hasSync).equals(false);
       expect(ss.hasPass).equals(true);
-      expect(ss.toString()).equals('{0,1}<4p3|4p3>');
+      expect(ss.toString()).equals('<4p3|L34p>');
+    });
+
+    it('Delays {0,1}<5p34|L345p>', () => {
+      const ss = Siteswap.Parse('{0,1}<5p34|L345p>');
+      expect(ss.errorMessage).equals('');
+      expect(ss.isValid).equals(true);
+      expect(ss.numJugglers).equals(2);
+      expect(ss.numObjects).equals(8);
+      expect(ss.period).equals(3);
+      expect(ss.maxHeight).equals(5);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
+      expect(ss.toString()).equals('<5p34|5p34>');
+    });
+
+    it('Complex example - 5 person popcorn star version 1', () => {
+      const ss = Siteswap.Parse('<4pxC3353|33534pxD|3534pxE3|534pxA33|34pxB335>');
+      expect(ss.errorMessage).equals('');
+      expect(ss.isValid).equals(true);
+      expect(ss.numJugglers).equals(5);
+      expect(ss.numObjects).equals(18);
+      expect(ss.period).equals(5);
+      expect(ss.maxHeight).equals(5);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
+      expect(ss.toString()).equals('<4pxC3353|33534pxD|3534pxE3|534pxA33|34pxB335>');
+    });
+
+    it('Complex example - 5 person popcorn star version 2', () => {
+      const ss = Siteswap.Parse('<4px3353|3534px3|34px335|33534px|534px33>');
+      expect(ss.errorMessage).equals('');
+      expect(ss.isValid).equals(true);
+      expect(ss.numJugglers).equals(5);
+      expect(ss.numObjects).equals(18);
+      expect(ss.period).equals(5);
+      expect(ss.maxHeight).equals(5);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
+      expect(ss.toString()).equals('<4px3353|3534px3|34px335|33534px|534px33>');
     });
 
     it('Fractional passes {0,0.5} <3.5p|3.5px>', () => {

@@ -51,6 +51,23 @@ export class Siteswap {
       }
     }
 
+    if (this.jugglers.length > 0) {
+      // Convert any delays of more than 1 to less and rotate the siteswap
+      const pureAsync = this.jugglers.every(juggler =>
+        juggler.beats.every(beat => beat.isAsync())
+      );
+      // Pure async siteswaps of odd period automatically flip sides
+      const implicitFlip = pureAsync && this.jugglers[0].beats.length % 2 === 1;
+      for (let i = 0; i < this.jugglerDelays.length; i++) {
+        while (this.jugglerDelays[i] >= 1) {
+          let lastBeat = this.jugglers[i].beats.pop()!;
+          if (implicitFlip) lastBeat = lastBeat.flip();
+          this.jugglers[i].beats.unshift(lastBeat);
+          this.jugglerDelays[i]--;
+        }
+      }
+    }
+
     // Make compiler happy
     this.state = new State([], true, jugglerDelays);
     this.validate();
