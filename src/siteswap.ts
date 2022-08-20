@@ -7,10 +7,10 @@ import {
   ssToInt,
   Throw,
   toLetter,
-  unfixFraction,
+  unfixFraction
 } from './common';
-import {parse} from './parser';
-import {State} from './state';
+import { parse } from './parser';
+import { State } from './state';
 
 export class Siteswap {
   numObjects = 0;
@@ -31,12 +31,25 @@ export class Siteswap {
 
   state: State;
 
+  _jugglerDelaysInferred = false;
+
   constructor(jugglers: JugglerBeats[], jugglerDelays?: number[]) {
     this.jugglers = jugglers;
-    // Default to all delays 0
-    this.jugglerDelays = jugglerDelays
-      ? jugglerDelays
-      : new Array(jugglers.length).fill(-1);
+    this.jugglerDelays = jugglerDelays ? jugglerDelays : new Array(jugglers.length).fill(-1);
+
+    // If we have a multiple of 3 jugglers then fix and .3 and .6 throws
+    if (this.jugglers.length % 3 === 0) {
+      for (const juggler of this.jugglers) {
+        for (const beat of juggler.beats) {
+          for (const ths of [beat.LH, beat.RH]) {
+            for (const th of ths) {
+              th.height = fixFraction(th.dispHeight, /*allow36=*/ true);
+            }
+          }
+        }
+      }
+    }
+
     // Make compiler happy
     this.state = new State([], true, jugglerDelays);
     this.validate();
@@ -76,9 +89,7 @@ export class Siteswap {
         }
       }
     }
-    for (let i = 0; i < this.numJugglers; i++) {
-      this.jugglerDelays[i] = unfixFraction(this.jugglerDelays[i], this.numJugglers % 3 === 0);
-    }
+    this._jugglerDelaysInferred = true;
     return true;
   }
 
@@ -109,9 +120,9 @@ export class Siteswap {
 
     // Convert .3 and .6 to 1/3 and 2/3 when we have a multiple of 3 jugglers
     const allow36 = this.numJugglers % 3 === 0;
-    const jugglerDelays = this.jugglerDelays.map(d => fixFraction(d, allow36));
-    if (jugglerDelays.length !== this.numJugglers) {
-      this.errorMessage = `Number of jugglers (${this.numJugglers}) not equal to number of delays (${jugglerDelays.length})`;
+    this.jugglerDelays = this.jugglerDelays.map(d => fixFraction(d, allow36));
+    if (this.jugglerDelays.length !== this.numJugglers) {
+      this.errorMessage = `Number of jugglers (${this.numJugglers}) not equal to number of delays (${this.jugglerDelays.length})`;
       return false;
     }
 
@@ -144,7 +155,7 @@ export class Siteswap {
     // Be a bit more lax and round if we have juggler delays
     const rounded = Math.round(this.numObjects);
     if (
-      jugglerDelays.some(d => d !== 0) &&
+      this.jugglerDelays.some(d => d !== 0) &&
       Math.abs(this.numObjects - rounded) < 1e-2
     ) {
       this.numObjects = rounded;
@@ -164,13 +175,13 @@ export class Siteswap {
       for (const th of this.throwsAt(pos)) {
         const landJuggler = th.landJuggler(pos.juggler, this.numJugglers);
         const fractionDiff =
-          jugglerDelays[pos.juggler] - jugglerDelays[landJuggler];
+          this.jugglerDelays[pos.juggler] - this.jugglerDelays[landJuggler];
         let fullLandTime = pos.time + th.height + fractionDiff;
         const rounded = Math.round(fullLandTime);
         if (Math.abs(fullLandTime - rounded) < 1e-2) {
           fullLandTime = rounded;
         } else {
-          this.errorMessage = `Throw ${th.origHeight} lands at an invalid time for juggler ${landJuggler}`;
+          this.errorMessage = `Throw ${th.dispHeight} lands at an invalid time for juggler ${landJuggler}`;
           return false;
         }
         const landTime = fullLandTime % this.period;
@@ -215,9 +226,10 @@ export class Siteswap {
       return this.jugglers[0].toString();
     } else {
       const jugglerStrings = this.jugglers.map(j => j.toString()).join('|');
+      const allow36 = this.numJugglers % 3 === 0;
       let delays = '';
-      if (this.jugglerDelays.some(d => d > 0)) {
-        delays = `{${this.jugglerDelays.join(',')}}`;
+      if (this.jugglerDelays.some(d => d > 0) && !this._jugglerDelaysInferred) {
+        delays = `{${this.jugglerDelays.map(d => unfixFraction(d, allow36)).join(',')}}`;
       }
       return `${delays}<${jugglerStrings}>`;
     }
@@ -233,18 +245,6 @@ export class Siteswap {
 
   static Parse(input: string) {
     const parsed = parse(input);
-    // If we have a multiple of 3 jugglers then fix and .3 and .6 throws
-    if (parsed[0].length % 3 === 0) {
-      for (const juggler of parsed[0]) {
-        for (const beat of juggler.beats) {
-          for (const ths of [beat.LH, beat.RH]) {
-            for (const th of ths) {
-              th.height = fixFraction(th.origHeight, /*allow36=*/ true);
-            }
-          }
-        }
-      }
-    }
     return new Siteswap(parsed[0], parsed[1]);
   }
 
@@ -287,9 +287,7 @@ export class Siteswap {
       }
     }
     const jugglerBeats = jugglers.map(ths => new JugglerBeats(ths));
-    const delays = Array.from(new Array(numJugglers), (x, i) =>
-      unfixFraction(i / numJugglers, fix36)
-    );
+    const delays = Array.from(new Array(numJugglers), (x, i) => i / numJugglers);
     return new Siteswap(jugglerBeats, delays);
   }
 }

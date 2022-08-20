@@ -188,7 +188,7 @@ describe('Throw', () => {
   it('Throw instance with an x', () => {
     const th = new Throw(5, true, false);
     expect(th.height).equal(5);
-    expect(th.origHeight).equal(5);
+    expect(th.dispHeight).equal(5);
     expect(th.x).equal(true);
     expect(th.pass).equal(false);
     expect(th.passTo).equal(undefined);
@@ -198,7 +198,7 @@ describe('Throw', () => {
   it('Throw instance with a relative pass', () => {
     const th = new Throw(10, false, true);
     expect(th.height).equal(10);
-    expect(th.origHeight).equal(10);
+    expect(th.dispHeight).equal(10);
     expect(th.x).equal(false);
     expect(th.pass).equal(true);
     expect(th.passTo).equal(undefined);
@@ -208,7 +208,7 @@ describe('Throw', () => {
   it('Throw instance with a fractional crossing absolute pass', () => {
     const th = new Throw(4.33, true, true, 3);
     expect(th.height).equal(4 + 1 / 3);
-    expect(th.origHeight).equal(4.33);
+    expect(th.dispHeight).equal(4.33);
     expect(th.x).equal(true);
     expect(th.pass).equal(true);
     expect(th.passTo).equal(3);

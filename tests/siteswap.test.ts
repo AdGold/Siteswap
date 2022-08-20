@@ -274,7 +274,8 @@ describe('Siteswap examples', () => {
       expect(ss.hasAsync).equals(true);
       expect(ss.hasSync).equals(false);
       expect(ss.hasPass).equals(true);
-      expect(ss.toString()).equals('{0,0.5}<3.5p|3.5px>');
+      expect(ss.toString()).equals('<3.5p|3.5px>');
+      expect(ss.jugglerDelays).eqls([0, 0.5]);
     });
 
     it('Inferred delays 3 jugglers <3.3p3|3.3p3|4.3p3>', () => {
@@ -289,7 +290,10 @@ describe('Siteswap examples', () => {
       expect(ss.hasAsync).equals(true);
       expect(ss.hasSync).equals(false);
       expect(ss.hasPass).equals(true);
-      expect(ss.toString()).equals('{0,0.3,0.6}<3.3p3|3.3p3|4.3p3>');
+      expect(ss.toString()).equals('<3.3p3|3.3p3|4.3p3>');
+      expect(ss.jugglerDelays[0]).approximately(0, 1e-6);
+      expect(ss.jugglerDelays[1]).approximately(1 / 3, 1e-6);
+      expect(ss.jugglerDelays[2]).approximately(2 / 3, 1e-6);
     });
 
     it('Invalid inferred delays <3.5|3.5>', () => {
@@ -316,7 +320,9 @@ describe('Siteswap examples', () => {
       expect(ss.hasAsync).equals(true);
       expect(ss.hasSync).equals(false);
       expect(ss.hasPass).equals(true);
-      expect(ss.toString()).equals('{0,0.3}<3.3p|3.7px>');
+      expect(ss.toString()).equals('<3.3p|3.7px>');
+      expect(ss.jugglerDelays[0]).approximately(0, 1e-6);
+      expect(ss.jugglerDelays[1]).approximately(0.3, 1e-6);
     });
 
     it('Fractional passes 3 jugglers {0,0.3,0.6}<3.3p3|3.3p3|4.3p3>', () => {

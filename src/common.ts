@@ -97,7 +97,7 @@ export function allPositions(numJugglers: number, period: number) {
   for (let j = 0; j < numJugglers; j++) {
     for (let i = 0; i < period; i++) {
       for (const hand of [Hand.Right, Hand.Left]) {
-        positions.push({juggler: j, time: i, hand: hand});
+        positions.push({ juggler: j, time: i, hand: hand });
       }
     }
   }
@@ -106,14 +106,14 @@ export function allPositions(numJugglers: number, period: number) {
 
 // A single throw, has a height, which juggler it's to and whether or not it has an 'x'
 export class Throw {
-  origHeight: number;
+  dispHeight: number;
   height: number;
   x: boolean;
   pass: boolean;
   passTo?: number;
 
   constructor(height: number, x: boolean, pass: boolean, passTo?: number) {
-    this.origHeight = height;
+    this.dispHeight = height;
     this.height = fixFraction(height, /*allow36=*/ false);
     this.x = x;
     this.pass = pass;
@@ -122,7 +122,7 @@ export class Throw {
 
   toString() {
     return [
-      floatToSS(this.origHeight),
+      floatToSS(this.dispHeight),
       this.pass ? 'p' : '',
       this.x ? 'x' : '',
       this.passTo != null ? toLetter(this.passTo, 'A') : '',
