@@ -245,7 +245,11 @@ export class JugglerBeats {
       if (prevSync && !beat.isEmpty()) {
         result += '!';
       }
-      result += beat.toString(curHand);
+      const curString = beat.toString(curHand);
+      if (curString === 'x' && result !== '') {
+        result += ' ';
+      }
+      result += curString
       // If we have an empty beat that isn't hidden treat as async 0
       if (beat.isEmpty() && !prevSync) {
         result += '0';

@@ -67,6 +67,43 @@ describe('Siteswap examples', () => {
       expect(() => Siteswap.Parse('ABC')).to.throw();
     });
 
+    it('1x - invalid', () => {
+      const ss = Siteswap.Parse('1x');
+      expect(ss.errorMessage).equals('Collision at juggler 0, time 0, hand 1');
+      expect(ss.isValid).equals(false);
+      expect(ss.toString()).equals('1x');
+    });
+
+    it('x1 - valid', () => {
+      const ss = Siteswap.Parse('x1');
+      expect(ss.errorMessage).equals('');
+      expect(ss.isValid).equals(true);
+      expect(ss.numJugglers).equals(1);
+      expect(ss.numObjects).equals(17);
+      expect(ss.period).equals(2);
+      expect(ss.maxHeight).equals(33);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(false);
+      expect(ss.toString()).equals('x1');
+    });
+
+    it('1 x - valid', () => {
+      const ss = Siteswap.Parse('1 x');
+      expect(ss.errorMessage).equals('');
+      expect(ss.isValid).equals(true);
+      expect(ss.numJugglers).equals(1);
+      expect(ss.numObjects).equals(17);
+      expect(ss.period).equals(2);
+      expect(ss.maxHeight).equals(33);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(false);
+      expect(ss.toString()).equals('1 x');
+    });
+
     it('[43]23', () => {
       const ss = Siteswap.Parse('[43]23');
       expect(ss.errorMessage).equals('');
