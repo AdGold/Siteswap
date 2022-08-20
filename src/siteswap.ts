@@ -2,6 +2,7 @@ import {
   allPositions,
   fixFraction,
   Hand,
+  intToSS,
   JugglerBeats,
   Position,
   ssToInt,
@@ -248,11 +249,12 @@ export class Siteswap {
     return new Siteswap(parsed[0], parsed[1]);
   }
 
-  static ParseKHSS(input: string, hands: number) {
+  static ParseKHSS(input: string, hands: number): Siteswap {
     if (hands % 2 !== 0) {
-      throw Error(
-        'k-handed siteswap parsing only implemented for even handed siteswaps'
-      );
+      // A bit of a hack to deal with odd-handed siteswaps as they break that each juggler has an even rhythm,
+      // instead make `hands` jugglers and only use one hand from each juggler.
+      const doubled = Array.from(input).map(c => intToSS(ssToInt(c) * 2) + '0').join('');
+      return Siteswap.ParseKHSS(doubled, hands * 2);
     }
     const numJugglers = hands / 2;
     const fix36 = numJugglers % 3 === 0;

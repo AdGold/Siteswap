@@ -637,7 +637,17 @@ describe('KHSS Parsing', () => {
     expect(ss.isValid).equal(true);
   });
 
-  it('3 handed SS not allowed', () => {
-    expect(() => Siteswap.ParseKHSS('97531', 1)).to.throw();
+  it('Simple 3 handed SS converted to 6hss', () => {
+    const ss = Siteswap.ParseKHSS('3', 3);
+    expect(ss.toString()).equal('{0,0.3,0.6}<20|02|20>');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
+  });
+
+  it('Complex 3 handed SS converted to 6hss', () => {
+    const ss = Siteswap.ParseKHSS('5313', 3);
+    expect(ss.toString()).equal('{0,0.3,0.6}<3.3p0200.6pxC020|00.6pA0203.3p02|203.3px0200.6pB0>');
+    expect(ss.errorMessage).equal('');
+    expect(ss.isValid).equal(true);
   });
 });
