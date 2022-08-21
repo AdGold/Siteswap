@@ -4,7 +4,7 @@
   "description": "A class for siteswaps.",
   "main": "siteswap.js",
   "scripts": {
-    "buildGrammar": "pegjs --plugin ./node_modules/ts-pegjs/src/tspegjs --extra-options-file pegconfig.json -o src/parser.ts --cache src/siteswap-grammar.peg",
+    "buildGrammar": "peggy --plugin ./node_modules/ts-pegjs/src/tspegjs --extra-options-file pegconfig.json -o src/parser.ts --cache src/siteswap-grammar.peg",
     "build": "webpack",
     "test": "mocha -r ts-node/register tests/**/*.test.ts",
     "coverage": "nyc -r lcov -e .ts npm run test",
@@ -22,6 +22,8 @@
     "nyc": "^15.1.0",
     "ts-loader": "^8.0.4",
     "ts-node": "^9.0.0",
+    "peggy": "^2.0.1",
+    "ts-pegjs": "^2.1.0",
     "typescript": "^4.0.3",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
@@ -29,8 +31,6 @@
     "@types/node": "^14.11.2"
   },
   "dependencies": {
-    "pegjs": "^0.10.0",
-    "ts-pegjs": "^0.2.7"
   },
   "nyc": {
     "include": "src/**/*.ts",
