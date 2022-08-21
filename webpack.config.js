@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   mode: 'development',
   devtool: 'eval-source-map',
-  entry: './src/siteswap.ts',
+  entry: './src/index.ts',
   module: {
     rules: [
       {
@@ -23,5 +23,6 @@ module.exports = {
     publicPath: 'public',
     filename: 'siteswap.js',
     path: path.resolve(__dirname, 'public'),
+    globalObject: 'this',
   },
 };

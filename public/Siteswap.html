@@ -1,73 +1,76 @@
 <html>
+
 <head>
-<title>Siteswap validator/info</title>
+    <title>Siteswap validator/info</title>
 </head>
+
 <body>
-<br>
-<b>Enter siteswap:</b><br>
-<input name="siteswap" id="pattern">
-<br>
-<input type="checkbox" id="sync-ground"> Use sync ground for transitions
-<br>
-<input type="button" id="flip" value="Flip siteswap">
-<hr />
-<p id="info">info</p>
+    <br>
+    <b>Enter siteswap:</b><br>
+    <input name="siteswap" id="pattern">
+    <br>
+    <input type="checkbox" id="sync-ground"> Use sync ground for transitions
+    <br>
+    <input type="button" id="flip" value="Flip siteswap">
+    <hr />
+    <p id="info">info</p>
 </body>
-<script type="module" type="text/javascript" src="siteswap.js"></script>
+<script type="text/javascript" src="siteswap.js"></script>
 <script type="text/javascript">
 
 
-let useSyncGround = false;
+    let useSyncGround = false;
 
-function update() {
-	const pattern = document.getElementById('pattern').value;
-    let ss;
-    try {
-        ss = siteswap.Siteswap.Parse(pattern);
-    } catch (e) {
-        document.getElementById('info').innerHTML = e.message;
-        return;
+    function update() {
+        const pattern = document.getElementById('pattern').value;
+        let ss;
+        try {
+            ss = siteswap.Siteswap.Parse(pattern);
+        } catch (e) {
+            document.getElementById('info').innerHTML = e.message;
+            return;
+        }
+        if (ss.isValid) {
+            document.getElementById('info').innerHTML = getInfo(ss);
+        } else {
+            document.getElementById('info').innerHTML = ss.errorMessage;
+        }
     }
-    if (ss.isValid) {
-        document.getElementById('info').innerHTML = getInfo(ss);
-    } else {
-        document.getElementById('info').innerHTML = ss.errorMessage;
-	}
-}
 
-function flip() {
-	const pattern = document.getElementById('pattern');
-    let ss;
-    try {
-        ss = siteswap.Siteswap.Parse(pattern.value);
-    } catch (e) {
-        return;
+    function flip() {
+        const pattern = document.getElementById('pattern');
+        let ss;
+        try {
+            ss = siteswap.Siteswap.Parse(pattern.value);
+        } catch (e) {
+            return;
+        }
+        pattern.value = ss.flip().toString();
+        update();
     }
-    pattern.value = ss.flip().toString();
-    update();
-}
 
-function getInfo(ss) {
-    let res = 'Siteswap: ' + ss.toString() + '<br>' +
-          'Jugglers: ' + ss.numJugglers + '<br>' +
-          'Objects: ' + ss.numObjects + '<br>' +
-          'Period: ' + ss.period + '<br>' +
-          'Max throw: ' + ss.maxHeight + '<br>';
-    const state = ss.state;
-    const useSyncGround = document.getElementById('sync-ground').checked;
-    if (state.isGround && !useSyncGround) {
-          res += 'Ground state: ' + state.toString() + '<br>';
-    } else {
-          res += 'State: ' + state.toString() + '<br>';
-          res += 'Entry: ' + state.entry(undefined, useSyncGround).toString() + '<br>' +
-                 'Exit: ' + state.exit(undefined, useSyncGround).toString() + '<br>';
+    function getInfo(ss) {
+        let res = 'Siteswap: ' + ss.toString() + '<br>' +
+            'Jugglers: ' + ss.numJugglers + '<br>' +
+            'Objects: ' + ss.numObjects + '<br>' +
+            'Period: ' + ss.period + '<br>' +
+            'Max throw: ' + ss.maxHeight + '<br>';
+        const state = ss.state;
+        const useSyncGround = document.getElementById('sync-ground').checked;
+        if (state.isGround && !useSyncGround) {
+            res += 'Ground state: ' + state.toString() + '<br>';
+        } else {
+            res += 'State: ' + state.toString() + '<br>';
+            res += 'Entry: ' + state.entry(undefined, useSyncGround).toString() + '<br>' +
+                'Exit: ' + state.exit(undefined, useSyncGround).toString() + '<br>';
+        }
+        return res;
     }
-    return res;
-}
 
-document.getElementById('pattern').oninput = update;
-document.getElementById('sync-ground').onclick = update;
-document.getElementById('flip').onclick = flip;
+    document.getElementById('pattern').oninput = update;
+    document.getElementById('sync-ground').onclick = update;
+    document.getElementById('flip').onclick = flip;
 
 </script>
+
 </html>
