@@ -548,9 +548,21 @@ describe('Siteswap examples', () => {
 });
 
 describe('Siteswap manipulations', () => {
-  it('Flip', () => {
+  it('Flip async', () => {
+    const ss = Siteswap.Parse('97531');
+    expect(ss.flip().toString()).equal('L97531');
+  });
+  it('Flip sync', () => {
+    const ss = Siteswap.Parse('(8x,2x)');
+    expect(ss.flip().toString()).equal('(2x,8x)');
+  });
+  it('Flip sync passing', () => {
     const ss = Siteswap.Parse('<(6,4)|(2,8)>');
     expect(ss.flip().toString()).equal('<(4,6)|(8,2)>');
+  });
+  it('Flip async passing', () => {
+    const ss = Siteswap.Parse('<3p33|3p33>');
+    expect(ss.flip().toString()).equal('<L3p33|L3p33>');
   });
 });
 
