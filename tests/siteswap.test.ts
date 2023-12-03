@@ -104,6 +104,43 @@ describe('Siteswap examples', () => {
       expect(ss.toString()).equals('1 x');
     });
 
+    it('1p - treated as period 1', () => {
+      const ss = Siteswap.Parse('1p');
+      expect(ss.isValid).equals(true);
+      expect(ss.period).equals(1);
+      expect(ss.toString()).equals('1p');
+    });
+
+    it('p1 - valid', () => {
+      const ss = Siteswap.Parse('p1');
+      expect(ss.errorMessage).equals('');
+      expect(ss.isValid).equals(true);
+      expect(ss.numJugglers).equals(1);
+      expect(ss.numObjects).equals(13);
+      expect(ss.period).equals(2);
+      expect(ss.maxHeight).equals(25);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(false);
+      expect(ss.toString()).equals('p1');
+    });
+
+    it('1 p - valid', () => {
+      const ss = Siteswap.Parse('1 p');
+      expect(ss.errorMessage).equals('');
+      expect(ss.isValid).equals(true);
+      expect(ss.numJugglers).equals(1);
+      expect(ss.numObjects).equals(13);
+      expect(ss.period).equals(2);
+      expect(ss.maxHeight).equals(25);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(false);
+      expect(ss.toString()).equals('1 p');
+    });
+
     it('[43]23', () => {
       const ss = Siteswap.Parse('[43]23');
       expect(ss.errorMessage).equals('');

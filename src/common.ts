@@ -246,7 +246,7 @@ export class JugglerBeats {
         result += '!';
       }
       const curString = beat.toString(curHand);
-      if (curString === 'x' && result !== '') {
+      if ((curString === 'x' || curString === 'p') && result !== '') {
         result += ' ';
       }
       result += curString
