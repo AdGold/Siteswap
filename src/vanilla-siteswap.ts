@@ -175,6 +175,41 @@ export class VanillaSiteswap {
         return this.throws.map(th => th.length === 1 ? intToSS(th[0]) : '[' + th.map(intToSS).join('') + ']').join('');
     }
 
+    toStack() {
+        if (this.maxMultiplex > 1) {
+            throw "Stack notation cannot deal with multiplexes";
+        }
+        // For each throw, for each beat before it lands, subtract one if the throw at that beat lands before it
+        let stack: number[] = [];
+        for (let i = 0; i < this.period; i++) {
+            let n = this.throws[i][0];
+            for (let j = 1; j < this.throws[i][0]; j++) {
+                if (j + this.throws[(i + j) % this.period][0] < this.throws[i][0]) n--;
+            }
+            stack.push(n);
+        }
+        return stack;
+    }
+
+    toStackString() {
+        return this.toStack().map(x => intToSS(x)).join('');
+    }
+
+    static ParseStack(input: string) {
+        const stack = input.replace(/ /g, '');
+        let throws: number[][] = [];
+        for (let i = 0; i < stack.length; i++) {
+            let ss = ssToInt(stack[i]);
+            let place = ss;
+            for (let j = 1; place > 0; j++) {
+                if (ssToInt(stack[(i+j)%stack.length]) < place) ss++;
+                else place--;
+            }
+            throws.push([ss]);
+        }
+        return new VanillaSiteswap(throws);
+    }
+
     static Parse(input: string) {
         let multiplex = false;
         let throws: number[][] = [];

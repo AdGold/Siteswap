@@ -98,6 +98,55 @@ describe('VanillaSiteswap examples', () => {
             expect(ss.toString()).equals('[12345]');
         });
     });
+    describe('Stack notation conversion', () => {
+        it('Siteswap -> stack: 531 -> 321', () => {
+            const ss = VanillaSiteswap.Parse('531');
+            expect(ss.toStackString()).equals('321');
+        });
+
+        it('Siteswap -> stack: b01 -> 401', () => {
+            const ss = VanillaSiteswap.Parse('b01');
+            expect(ss.toStackString()).equals('401');
+        });
+
+        it('Siteswap -> stack: complex', () => {
+            const ss = VanillaSiteswap.Parse('638257149');
+            expect(ss.toStackString()).equals('435245145');
+        });
+
+        it('Siteswap -> stack: multiplex', () => {
+            const ss = VanillaSiteswap.Parse('[43]23');
+            expect(() => ss.toStack()).to.throw();
+        });
+
+        it('Stack -> siteswap: 321 -> 531', () => {
+            const ss = VanillaSiteswap.ParseStack('321');
+            expect(ss.toString()).equals('531');
+            expect(ss.toStackString()).equals('321');
+        });
+
+        it('Stack -> siteswap: 401 -> b01', () => {
+            const ss = VanillaSiteswap.ParseStack('  4     01 ');
+            expect(ss.toString()).equals('b01');
+            expect(ss.toStackString()).equals('401');
+        });
+
+        it('Stack -> siteswap: over 10', () => {
+            const ss = VanillaSiteswap.ParseStack('zz');
+            expect(ss.toString()).equals('zz');
+            expect(ss.toStackString()).equals('zz');
+        });
+
+        it('Stack -> siteswap: complex', () => {
+            const ss = VanillaSiteswap.ParseStack('435245145');
+            expect(ss.toString()).equals('638257149');
+            expect(ss.toStackString()).equals('435245145');
+        });
+
+        it('Stack -> siteswap: invalid', () => {
+            expect(() => VanillaSiteswap.ParseStack('[43]23')).to.throw();
+        });
+    });
 });
 
 describe('VanillaSiteswap state calculations', () => {

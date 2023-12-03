@@ -61,6 +61,10 @@ input[type=checkbox]
               <input type="checkbox" class="custom-control-input" id="sync-ground"> 
               <label class="custom-control-label" for="sync-ground">Use sync ground</label>
             </div>
+            <div class="custom-control custom-checkbox checkbox-lg">
+              <input type="checkbox" class="custom-control-input" id="stack"> 
+              <label class="custom-control-label" for="stack">Use stack notation</label>
+            </div>
             <!-- <div class="form-group form-check"> -->
                 <!-- <input type="checkbox" class="form-check-input checkbox-lg" id="sync-ground"> &nbsp; -->
                 <!-- <label class="form-check-label" for="sync-ground">Use sync ground</label> -->
@@ -85,7 +89,12 @@ input[type=checkbox]
         const pattern = document.getElementById('pattern').value;
         let ss;
         try {
-            ss = siteswap.Siteswap.Parse(pattern);
+            if (document.getElementById('stack').checked) {
+                const realSS = siteswap.VanillaSiteswap.ParseStack(pattern).toString().split('').join(' ');
+                ss = siteswap.Siteswap.Parse(realSS);
+            } else {
+                ss = siteswap.Siteswap.Parse(pattern);
+            }
         } catch (e) {
             document.getElementById('info').innerHTML = e.message;
             return;
@@ -98,6 +107,9 @@ input[type=checkbox]
     }
 
     function flip() {
+        if (document.getElementById('stack').checked) {
+            return;
+        }
         const pattern = document.getElementById('pattern');
         let ss;
         try {
@@ -120,6 +132,9 @@ input[type=checkbox]
             'Period: ' + ss.period + '<br>' +
             'Max throw: ' + ss.maxHeight + '<br>';
         const state = ss.state;
+        if (ss.maxMultiplex == 1) {
+            res += 'Stack notation: ' + esc(siteswap.VanillaSiteswap.Parse(ss.toString()).toStackString()) + '<br>';
+        }
         const useSyncGround = document.getElementById('sync-ground').checked;
         if (state.isGround && !useSyncGround) {
             res += 'Ground state: ' + esc(state.toString()) + '<br>';
@@ -136,6 +151,7 @@ input[type=checkbox]
 
     document.getElementById('pattern').oninput = update;
     document.getElementById('sync-ground').onclick = update;
+    document.getElementById('stack').onclick = update;
     document.getElementById('flip').onclick = flip;
 
 </script>
