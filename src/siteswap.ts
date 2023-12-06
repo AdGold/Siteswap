@@ -12,6 +12,12 @@ import {
 } from './common';
 import { parse } from './parser';
 import { State } from './state';
+import { VanillaSiteswap } from './vanilla-siteswap';
+
+function swapHand(time: number, period: number, implicitFlip: boolean) {
+  const loops = Math.floor(time / period);
+  return implicitFlip && loops % 2 === 1;
+}
 
 export class Siteswap {
   numObjects = 0;
@@ -23,6 +29,7 @@ export class Siteswap {
   hasSync = false;
   hasAsync = false;
   hasPass = false;
+  pureAsync = false;
 
   isValid = false;
   errorMessage = '';
@@ -33,6 +40,7 @@ export class Siteswap {
   state: State;
 
   _jugglerDelaysInferred = false;
+  _implicitFlip = false;
 
   constructor(jugglers: JugglerBeats[], jugglerDelays?: number[]) {
     this.jugglers = jugglers;
@@ -53,15 +61,15 @@ export class Siteswap {
 
     if (this.jugglers.length > 0) {
       // Convert any delays of more than 1 to less and rotate the siteswap
-      const pureAsync = this.jugglers.every(juggler =>
+      this.pureAsync = this.jugglers.every(juggler =>
         juggler.beats.every(beat => beat.isAsync())
       );
       // Pure async siteswaps of odd period automatically flip sides
-      const implicitFlip = pureAsync && this.jugglers[0].beats.length % 2 === 1;
+      this._implicitFlip = this.pureAsync && this.jugglers[0].beats.length % 2 === 1;
       for (let i = 0; i < this.jugglerDelays.length; i++) {
         while (this.jugglerDelays[i] >= 1) {
           let lastBeat = this.jugglers[i].beats.pop()!;
-          if (implicitFlip) lastBeat = lastBeat.flip();
+          if (this._implicitFlip) lastBeat = lastBeat.flip();
           this.jugglers[i].beats.unshift(lastBeat);
           this.jugglerDelays[i]--;
         }
@@ -74,7 +82,7 @@ export class Siteswap {
   }
 
   inferJugglerDelays() {
-    if (!this.jugglerDelays.every(x => x === -1) || this.numJugglers === 1) {
+    if (!this.jugglerDelays.every(x => x === -1)) {
       // We were given delays, don't infer them
       return true;
     }
@@ -184,11 +192,6 @@ export class Siteswap {
     }
 
     this.state = State.Empty(this.numJugglers, this.maxHeight);
-    const pureAsync = this.jugglers.every(juggler =>
-      juggler.beats.every(beat => beat.isAsync())
-    );
-    // Pure async siteswaps of odd period automatically flip sides
-    const implicitFlip = pureAsync && this.period % 2 === 1;
     for (const pos of allPositions(this.numJugglers, this.period)) {
       for (const th of this.throwsAt(pos)) {
         const landJuggler = th.landJuggler(pos.juggler, this.numJugglers);
@@ -208,9 +211,7 @@ export class Siteswap {
         // vanilla siteswaps) and we looped around an odd number of times.
         // This isn't because the throw swapped hands but because the siteswap
         // should be repeating on the other side.
-        const loops = Math.floor(fullLandTime / this.period);
-        const landHand =
-          implicitFlip && loops % 2 === 1 ? 1 - fullLandHand : fullLandHand;
+        const landHand = swapHand(fullLandTime, this.period, this._implicitFlip) ? 1 - fullLandHand : fullLandHand;
         const landPosition: Position = {
           juggler: landJuggler,
           time: landTime,
@@ -228,7 +229,7 @@ export class Siteswap {
         while (curTime >= 0) {
           this.state.inc({ juggler: landJuggler, time: curTime, hand: curHand });
           // Back one period of the siteswap
-          if (implicitFlip) curHand = 1 - curHand;
+          if (this._implicitFlip) curHand = 1 - curHand;
           curTime -= this.period;
         }
       }
@@ -266,12 +267,24 @@ export class Siteswap {
     return new Siteswap(parsed[0], parsed[1]);
   }
 
-  static ParseKHSS(input: string, hands: number): Siteswap {
+  static ParseKHSS(input: string, hands: number = 2): Siteswap {
+    return Siteswap.FromKHSS(VanillaSiteswap.Parse(input), hands);
+  }
+
+  static FromKHSS(input: VanillaSiteswap, hands: number = 2): Siteswap {
+    if (input.maxMultiplex > 1) {
+      throw "KHSS only implemented without multiplexes";
+    }
     if (hands % 2 !== 0) {
       // A bit of a hack to deal with odd-handed siteswaps as they break that each juggler has an even rhythm,
       // instead make `hands` jugglers and only use one hand from each juggler.
-      const doubled = Array.from(input).map(c => intToSS(ssToInt(c) * 2) + '0').join('');
-      return Siteswap.ParseKHSS(doubled, hands * 2);
+      const doubled: number[][] = [];
+      for (const th of input.throws) {
+        doubled.push(th.map(c => c * 2));
+        doubled.push([0]);
+      }
+      // const doubled = Array.from(input).map(c => intToSS(ssToInt(c) * 2) + '0').join('');
+      return Siteswap.FromKHSS(new VanillaSiteswap(doubled), hands * 2);
     }
     const numJugglers = hands / 2;
     const fix36 = numJugglers % 3 === 0;
@@ -282,7 +295,7 @@ export class Siteswap {
     let j = 0;
     let i = 0;
     while (i >= 0) {
-      const fullThrow = ssToInt(input[i]);
+      const fullThrow = input.throws[i][0];
       // Convert to local height and make more readable
       const height = unfixFraction(fullThrow / numJugglers, fix36);
       // Non multiples are passes
@@ -299,7 +312,7 @@ export class Siteswap {
       th.height = fullThrow / numJugglers;
       jugglers[j].push([th]);
       j = (j + 1) % numJugglers;
-      i = (i + 1) % input.length;
+      i = (i + 1) % input.throws.length;
       if (i === 0 && j === 0) {
         // We've reached the start after enough repetitions
         break;

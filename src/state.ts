@@ -301,6 +301,7 @@ export class State {
       }
     }
     // If they have the same number of objects, we should have found a valid shift.
+    /* istanbul ignore next */
     throw Error('Logic Error - this should never happen');
   }
 

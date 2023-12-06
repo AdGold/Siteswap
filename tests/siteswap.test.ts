@@ -1,4 +1,5 @@
 import { Siteswap } from '../src/siteswap';
+import { VanillaSiteswap } from '../src/vanilla-siteswap';
 
 import * as chai from 'chai';
 
@@ -697,9 +698,9 @@ describe('Siteswap state calculations', () => {
   });
 });
 
-describe('KHSS Parsing', () => {
-  it('2 handed SS', () => {
-    const ss = Siteswap.ParseKHSS('97531', 2);
+describe('KHSS Parsing/conversion', () => {
+  it('2 handed SS - test default', () => {
+    const ss = Siteswap.ParseKHSS('97531');
     expect(ss.toString()).equal('97531');
     expect(ss.errorMessage).equal('');
     expect(ss.isValid).equal(true);
@@ -780,5 +781,10 @@ describe('KHSS Parsing', () => {
     expect(ss.toString()).equal('{0,0.3,0.6}<3.3p0200.6pxC020|00.6pA0203.3p02|203.3px0200.6pB0>');
     expect(ss.errorMessage).equal('');
     expect(ss.isValid).equal(true);
+  });
+
+  it('Invalid conversion from multiplex vanilla siteswap', () => {
+    const vss = VanillaSiteswap.Parse('[43]23');
+    expect(() => Siteswap.FromKHSS(vss)).to.throw();
   });
 });

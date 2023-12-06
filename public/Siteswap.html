@@ -82,6 +82,8 @@ input[type=checkbox]
 <script type="text/javascript" src="siteswap.js"></script>
 <script type="text/javascript">
 
+    const Siteswap = siteswap.Siteswap;
+    const VanillaSiteswap = siteswap.VanillaSiteswap;
 
     let useSyncGround = false;
 
@@ -90,10 +92,9 @@ input[type=checkbox]
         let ss;
         try {
             if (document.getElementById('stack').checked) {
-                const realSS = siteswap.VanillaSiteswap.ParseStack(pattern).toString().split('').join(' ');
-                ss = siteswap.Siteswap.Parse(realSS);
+                ss = Siteswap.FromKHSS(VanillaSiteswap.ParseStack(pattern));
             } else {
-                ss = siteswap.Siteswap.Parse(pattern);
+                ss = Siteswap.Parse(pattern);
             }
         } catch (e) {
             document.getElementById('info').innerHTML = e.message;
@@ -113,7 +114,7 @@ input[type=checkbox]
         const pattern = document.getElementById('pattern');
         let ss;
         try {
-            ss = siteswap.Siteswap.Parse(pattern.value);
+            ss = Siteswap.Parse(pattern.value);
         } catch (e) {
             return;
         }
@@ -132,8 +133,8 @@ input[type=checkbox]
             'Period: ' + ss.period + '<br>' +
             'Max throw: ' + ss.maxHeight + '<br>';
         const state = ss.state;
-        if (ss.maxMultiplex == 1) {
-            res += 'Stack notation: ' + esc(siteswap.VanillaSiteswap.Parse(ss.toString()).toStackString()) + '<br>';
+        if (ss.maxMultiplex === 1 && ss.numJugglers === 1 && ss.pureAsync) {
+            res += 'Stack notation: ' + esc(VanillaSiteswap.Parse(ss.toString()).toStackString()) + '<br>';
         }
         const useSyncGround = document.getElementById('sync-ground').checked;
         if (state.isGround && !useSyncGround) {
