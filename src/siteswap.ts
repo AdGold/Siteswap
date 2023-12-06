@@ -13,6 +13,15 @@ import {
 import { parse } from './parser';
 import { State } from './state';
 import { VanillaSiteswap } from './vanilla-siteswap';
+import { JIFThrow, JIF } from './jif';
+
+function np(a: number, b: number) {
+  return `${a},${b}`;
+}
+
+function round3(num: number) {
+  return Math.round( ( num + Number.EPSILON ) * 1000 ) / 1000;
+}
 
 function swapHand(time: number, period: number, implicitFlip: boolean) {
   const loops = Math.floor(time / period);
@@ -258,8 +267,98 @@ export class Siteswap {
     return new Siteswap(this.jugglers.map(juggler => juggler.flip()));
   }
 
-  // TODO JIF conversion
-  // toJIF() { return {}; }
+  toJIF() {
+    const RADIUS = this.numJugglers === 1 ? 0 : 1.5;
+    const objectType = "club";
+    const jugglers = [];
+    const limbs = [];
+    const props = [];
+    for (let i = 0; i < this.numJugglers; i++) {
+      limbs.push({juggler: i, type: 'left hand'});
+      limbs.push({juggler: i, type: 'right hand'});
+      const angle = i * 2 * Math.PI / this.numJugglers;
+      jugglers.push({
+        name: toLetter(i, 'A'),
+        position: [round3(RADIUS * Math.cos(angle)), 0, round3(RADIUS * Math.sin(angle))],
+        lookAt: [0, 0, this.numJugglers === 1 ? 1 : 0],
+      });
+    }
+    for (let i = 0; i < this.numObjects; i++) {
+        props.push({color: "#f45d20", type: objectType});
+    }
+    const events = [];
+    for (const pos of allPositions(this.numJugglers, this.period)) {
+      for (const th of this.throwsAt(pos)) {
+        events.push({
+          time: pos.time + this.jugglerDelays[pos.juggler],
+          height: th.height,
+          fromHand: pos.hand,
+          toHand: th.throwSwapsHands() ? 1 - pos.hand : pos.hand,
+          fromJuggler: pos.juggler,
+          toJuggler: th.landJuggler(pos.juggler, this.numJugglers),
+          label: th.toString(),
+        });
+      }
+    }
+    events.sort((a, b) => a.time - b.time);
+    const throws = [];
+    // const positions: Map<number, number>[] = Array.from({length: 3}, () => new Map<number, number>();
+    const positions: Map<string, number | undefined> = new Map();
+    let timeOffset = 0;
+    let nextProp = 0;
+    const inits = [];
+    while (true) {
+      for (const event of events) {
+        const time = event["time"] + timeOffset;
+        const fromHand = swapHand(time, this.period, this._implicitFlip) ? 1 - event["fromHand"] : event["fromHand"];
+        const toHand = swapHand(time, this.period, this._implicitFlip) ? 1 - event["toHand"] : event["toHand"];
+        const th: JIFThrow = {
+          time: time,
+          from: event["fromJuggler"] * 2 + fromHand,
+          to: event["toJuggler"] * 2 + toHand,
+          duration: event["height"],
+          label: event["label"],
+        };
+        if (positions.get(np(th.time, th.from)) == undefined) {
+          positions.set(np(th.time, th.from), nextProp);
+          inits.push([th.time, th.from, nextProp]);
+          nextProp += 1;
+        }
+        th.prop = positions.get(np(th.time, th.from));
+        positions.set(np(th.time + th.duration, th.to), positions.get(np(th.time, th.from)));
+        positions.set(np(th.time, th.from), undefined);
+        throws.push(th);
+      }
+      timeOffset += this.period;
+      let equal = true;
+      for (const [time, from, prop] of inits) {
+        if (positions.get(np(time + timeOffset, from)) !== prop) {
+          equal = false;
+          break;
+        }
+      }
+      if (equal) break;
+      if (timeOffset > 500) {
+        /* istanbul ignore next */
+        throw "Could not find a repetition within 500 steps, giving up";
+      }
+    }
+    const jif: JIF = {
+      "meta": {
+        "name": this.toString(),
+        "type": "General siteswap",
+        "description": this.toString(),
+      },
+      "timeStretchFactor": 1,
+      "valid": true,
+      "jugglers": jugglers,
+      "limbs": limbs,
+      "props": props,
+      "throws": throws,
+      "repetition": {"period": timeOffset},
+    };
+    return jif;
+  }
   // static FromJif(jif: JSON) { }
 
   static Parse(input: string) {

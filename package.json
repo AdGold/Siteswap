@@ -35,5 +35,9 @@
   "nyc": {
     "include": "src/**/*.ts",
     "exclude": "**/parser.ts"
+  },
+  "dependencies": {
+    "@types/deep-equal-in-any-order": "^1.0.3",
+    "deep-equal-in-any-order": "^2.0.6"
   }
 }

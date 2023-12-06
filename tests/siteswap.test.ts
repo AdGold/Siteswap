@@ -3,6 +3,9 @@ import { VanillaSiteswap } from '../src/vanilla-siteswap';
 
 import * as chai from 'chai';
 
+const deepEqualInAnyOrder = require('deep-equal-in-any-order');
+chai.use(deepEqualInAnyOrder);
+
 const expect = chai.expect;
 
 describe('Siteswap examples', () => {
@@ -786,5 +789,139 @@ describe('KHSS Parsing/conversion', () => {
   it('Invalid conversion from multiplex vanilla siteswap', () => {
     const vss = VanillaSiteswap.Parse('[43]23');
     expect(() => Siteswap.FromKHSS(vss)).to.throw();
+  });
+});
+
+describe('JIF conversion', () => {
+  describe('Siteswap to JIF conversion', () => {
+    it('JIF for 3', () => {
+      const ss = Siteswap.Parse('3');
+      expect(ss.isValid).equal(true);
+      expect(ss.toJIF()).to.deep.equalInAnyOrder({
+        meta: { name: '3', type: 'General siteswap', description: '3' },
+        timeStretchFactor: 1,
+        valid: true,
+        jugglers: [ { name: 'A', position: [0, 0, 0], lookAt: [0, 0, 1] } ],
+        limbs: [
+          { juggler: 0, type: 'left hand' },
+          { juggler: 0, type: 'right hand' }
+        ],
+        props: [
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' }
+        ],
+        throws: [
+          { time: 0, from: 0, to: 1, duration: 3, label: '3', prop: 0 },
+          { time: 1, from: 1, to: 0, duration: 3, label: '3', prop: 1 },
+          { time: 2, from: 0, to: 1, duration: 3, label: '3', prop: 2 },
+          { time: 3, from: 1, to: 0, duration: 3, label: '3', prop: 0 },
+          { time: 4, from: 0, to: 1, duration: 3, label: '3', prop: 1 },
+          { time: 5, from: 1, to: 0, duration: 3, label: '3', prop: 2 },
+        ],
+        repetition: { period: 6 }
+      });
+    });
+    it('JIF for 531', () => {
+      const ss = Siteswap.Parse('531');
+      expect(ss.isValid).equal(true);
+      expect(ss.toJIF()).to.deep.equalInAnyOrder({
+        meta: { name: '531', type: 'General siteswap', description: '531' },
+        timeStretchFactor: 1,
+        valid: true,
+        jugglers: [ { name: 'A', position: [0, 0, 0], lookAt: [0, 0, 1] } ],
+        limbs: [
+          { juggler: 0, type: 'left hand' },
+          { juggler: 0, type: 'right hand' }
+        ],
+        props: [
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' }
+        ],
+        throws: [
+          { time: 0, from: 0, to: 1, duration: 5, label: '5', prop: 0 },
+          { time: 1, from: 1, to: 0, duration: 3, label: '3', prop: 1 },
+          { time: 2, from: 0, to: 1, duration: 1, label: '1', prop: 2 },
+          { time: 3, from: 1, to: 0, duration: 5, label: '5', prop: 2 },
+          { time: 4, from: 0, to: 1, duration: 3, label: '3', prop: 1 },
+          { time: 5, from: 1, to: 0, duration: 1, label: '1', prop: 0 }
+        ],
+        repetition: { period: 6 }
+      });
+    });
+    it('JIF2 for 53', () => {
+      const ss = Siteswap.Parse('53');
+      expect(ss.isValid).equal(true);
+      expect(ss.toJIF()).to.deep.equalInAnyOrder({
+        meta: { name: '53', type: 'General siteswap', description: '53' },
+        timeStretchFactor: 1,
+        valid: true,
+        jugglers: [ { name: 'A', position: [0, 0, 0], lookAt: [0, 0, 1] } ],
+        limbs: [
+          { juggler: 0, type: 'left hand' },
+          { juggler: 0, type: 'right hand' }
+        ],
+        props: [
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' }
+        ],
+        throws: [
+          { time: 0, from: 0, to: 1, duration: 5, label: '5', prop: 0 },
+          { time: 1, from: 1, to: 0, duration: 3, label: '3', prop: 1 },
+          { time: 2, from: 0, to: 1, duration: 5, label: '5', prop: 2 },
+          { time: 3, from: 1, to: 0, duration: 3, label: '3', prop: 3 },
+          { time: 4, from: 0, to: 1, duration: 5, label: '5', prop: 1 },
+          { time: 5, from: 1, to: 0, duration: 3, label: '3', prop: 0 },
+          { time: 6, from: 0, to: 1, duration: 5, label: '5', prop: 3 },
+          { time: 7, from: 1, to: 0, duration: 3, label: '3', prop: 2 }
+        ],
+        repetition: { period: 8 }
+      });
+    });
+    it('JIF for 6 club 3 count', () => {
+      const ss = Siteswap.Parse('<3p33|3p33>');
+      expect(ss.isValid).equal(true);
+      expect(ss.toJIF()).to.deep.equalInAnyOrder({
+        meta: { name: '<3p33|3p33>', type: 'General siteswap', description: '<3p33|3p33>' },
+        timeStretchFactor: 1,
+        valid: true,
+        jugglers: [
+          { name: 'A', position: [1.5, 0, 0], lookAt: [0, 0, 0] },
+          { name: 'B', position: [-1.5, 0, 0], lookAt: [0, 0, 0] }
+        ],
+        limbs: [
+          { juggler: 0, type: 'left hand' },
+          { juggler: 0, type: 'right hand' },
+          { juggler: 1, type: 'left hand' },
+          { juggler: 1, type: 'right hand' }
+        ],
+        props: [
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' },
+          { color: '#f45d20', type: 'club' }
+        ],
+        throws: [
+          { time: 0, from: 0, to: 3, duration: 3, label: '3p', prop: 0 },
+          { time: 0, from: 2, to: 1, duration: 3, label: '3p', prop: 1 },
+          { time: 1, from: 1, to: 0, duration: 3, label: '3', prop: 2 },
+          { time: 1, from: 3, to: 2, duration: 3, label: '3', prop: 3 },
+          { time: 2, from: 0, to: 1, duration: 3, label: '3', prop: 4 },
+          { time: 2, from: 2, to: 3, duration: 3, label: '3', prop: 5 },
+          { time: 3, from: 1, to: 2, duration: 3, label: '3p', prop: 1 },
+          { time: 3, from: 3, to: 0, duration: 3, label: '3p', prop: 0 },
+          { time: 4, from: 0, to: 1, duration: 3, label: '3', prop: 2 },
+          { time: 4, from: 2, to: 3, duration: 3, label: '3', prop: 3 },
+          { time: 5, from: 1, to: 0, duration: 3, label: '3', prop: 4 },
+          { time: 5, from: 3, to: 2, duration: 3, label: '3', prop: 5 },
+        ],
+        repetition: { period: 6 }
+      });
+    });
   });
 });
