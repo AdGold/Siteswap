@@ -154,7 +154,7 @@ body {
             'Max throw: ' + ss.maxHeight + '<br>';
         const state = ss.state;
         if (ss.maxMultiplex === 1 && ss.numJugglers === 1 && ss.pureAsync) {
-            res += 'Stack notation: ' + esc(VanillaSiteswap.Parse(ss.toString()).toStackString()) + '<br>';
+            res += 'Stack notation: ' + esc(ss.toVanilla().toStackString()) + '<br>';
         }
         const useSyncGround = document.getElementById('sync-ground').checked;
         if (state.isGround && !useSyncGround) {

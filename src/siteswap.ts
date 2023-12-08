@@ -267,6 +267,18 @@ export class Siteswap {
     return new Siteswap(this.jugglers.map(juggler => juggler.flip()));
   }
 
+  toVanilla() {
+    if (!this.pureAsync || this.numJugglers !== 1) {
+      throw "Could not convert to vanilla siteswap: must be async and single juggler";
+    }
+    const throws: number[][] = [];
+    for (const beat of this.jugglers[0].beats) {
+      const ths = beat.LH.length > 0 ? beat.LH : beat.RH;
+      throws.push(ths.map(th => th.height));
+    }
+    return new VanillaSiteswap(throws);
+  }
+
   toJIF() {
     const RADIUS = this.numJugglers === 1 ? 0 : 1.5;
     const objectType = "club";
@@ -274,8 +286,8 @@ export class Siteswap {
     const limbs = [];
     const props = [];
     for (let i = 0; i < this.numJugglers; i++) {
-      limbs.push({juggler: i, type: 'left hand'});
       limbs.push({juggler: i, type: 'right hand'});
+      limbs.push({juggler: i, type: 'left hand'});
       const angle = i * 2 * Math.PI / this.numJugglers;
       jugglers.push({
         name: toLetter(i, 'A'),
@@ -302,7 +314,6 @@ export class Siteswap {
     }
     events.sort((a, b) => a.time - b.time);
     const throws = [];
-    // const positions: Map<number, number>[] = Array.from({length: 3}, () => new Map<number, number>();
     const positions: Map<string, number | undefined> = new Map();
     let timeOffset = 0;
     let nextProp = 0;

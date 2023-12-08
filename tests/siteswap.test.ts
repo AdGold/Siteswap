@@ -701,6 +701,42 @@ describe('Siteswap state calculations', () => {
   });
 });
 
+describe('Conversion to VanillaSiteswap', () => {
+  it('Basic: 97531', () => {
+    const ss = Siteswap.Parse('97531');
+    const vanilla = ss.toVanilla();
+    expect(vanilla.toString()).equal('97531');
+    expect(vanilla.errorMessage).equal('');
+    expect(vanilla.isValid).equal(true);
+  });
+
+  it('Multiplex [43]23', () => {
+    const ss = Siteswap.Parse('[43]23');
+    const vanilla = ss.toVanilla();
+    expect(vanilla.toString()).equal('[43]23');
+    expect(vanilla.errorMessage).equal('');
+    expect(vanilla.isValid).equal(true);
+  });
+
+  it('LH shower: L51', () => {
+    const ss = Siteswap.Parse('L51');
+    const vanilla = ss.toVanilla();
+    expect(vanilla.toString()).equal('51');
+    expect(vanilla.errorMessage).equal('');
+    expect(vanilla.isValid).equal(true);
+  });
+
+  it('Sync: invalid', () => {
+    const ss = Siteswap.Parse('(4,4)');
+    expect(() => ss.toVanilla()).to.throw();
+  });
+
+  it('Passing: invalid', () => {
+    const ss = Siteswap.Parse('<3p|3p>');
+    expect(() => ss.toVanilla()).to.throw();
+  });
+});
+
 describe('KHSS Parsing/conversion', () => {
   it('2 handed SS - test default', () => {
     const ss = Siteswap.ParseKHSS('97531');
