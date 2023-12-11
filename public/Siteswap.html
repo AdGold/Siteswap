@@ -19,6 +19,10 @@ body {
 }
 #animation {
     height: 500px;
+    width 100%;
+}
+#info {
+    height: 15em;
 }
 .centre {
   align-items: center;
@@ -56,10 +60,6 @@ body {
               <input type="checkbox" class="custom-control-input" id="stack"> 
               <label class="custom-control-label" for="stack">Use stack notation</label>
             </div>
-            <!-- <div class="form-group form-check"> -->
-                <!-- <input type="checkbox" class="form-check-input checkbox-lg" id="sync-ground"> &nbsp; -->
-                <!-- <label class="form-check-label" for="sync-ground">Use sync ground</label> -->
-            <!-- </div> -->
           </div>
           <div class="col">
             <input type="button" class="btn" id="flip" value="Flip hands">
@@ -68,6 +68,7 @@ body {
         <hr />
         <p id="info"></p>
         <div id="animation"></div>
+        <p style="font-size:0.5em">Experimental animation using simulator from <a href="https://passist.org">passist.org</a></p>
       </div>
     </div>
 </body>
@@ -104,9 +105,33 @@ body {
     const Siteswap = siteswap.Siteswap;
     const VanillaSiteswap = siteswap.VanillaSiteswap;
 
-    let useSyncGround = false;
+    function init() {
+        const url = new URL(location.href);
+        document.getElementById('pattern').value = url.searchParams.get('ss');
+        document.getElementById('stack').checked = url.searchParams.get('stack');
+        update();
+    }
+
+    function updateURL() {
+        const url = new URL(location.href);
+        const pattern = document.getElementById('pattern').value;
+        if (pattern.length > 0) {
+            url.searchParams.set('ss', pattern);
+        } else {
+            url.searchParams.delete('ss');
+        }
+        const stack = document.getElementById('stack').checked;
+        if (stack) {
+            url.searchParams.set('stack', true);
+        } else {
+            url.searchParams.delete('stack');
+        }
+        
+        history.pushState(null, '', url);
+    }
 
     function update() {
+        updateURL();
         const pattern = document.getElementById('pattern').value;
         let ss;
         try {
@@ -170,10 +195,14 @@ body {
         return res;
     }
 
+    init();
+    update();
+
     document.getElementById('pattern').oninput = update;
     document.getElementById('sync-ground').onclick = update;
     document.getElementById('stack').onclick = update;
     document.getElementById('flip').onclick = flip;
+
 
 </script>
 
