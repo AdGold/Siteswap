@@ -376,14 +376,12 @@ export class State {
     // 0, 1 -> 2, 6  :::  25 & 61
     const perm_length = land_times.length;
     const c = new Array(perm_length).fill(0);
-    let i = 1,
-      k,
-      p;
+    let i = 1;
 
     while (i < perm_length) {
       if (c[i] < i) {
-        k = i % 2 && c[i];
-        p = land_times[i];
+        const k = i % 2 && c[i];
+        const p = land_times[i];
         land_times[i] = land_times[k];
         land_times[k] = p;
         ++c[i];

@@ -301,6 +301,9 @@ export class Siteswap {
     const events = [];
     for (const pos of allPositions(this.numJugglers, this.period)) {
       for (const th of this.throwsAt(pos)) {
+        if (th.height == 0) {
+          continue;
+        }
         events.push({
           time: pos.time + this.jugglerDelays[pos.juggler],
           height: th.height,

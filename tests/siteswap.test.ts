@@ -886,7 +886,7 @@ describe('JIF conversion', () => {
         repetition: { period: 6 }
       });
     });
-    it('JIF2 for 53', () => {
+    it('JIF for 53', () => {
       const ss = Siteswap.Parse('53');
       expect(ss.isValid).equal(true);
       expect(ss.toJIF()).to.deep.equalInAnyOrder({
@@ -917,6 +917,19 @@ describe('JIF conversion', () => {
         repetition: { period: 8 }
       });
     });
+
+    it('JIF ignore 0s', () => {
+      const ss1 = Siteswap.Parse('(0,5)!(5,0)!(0,5)!(1,0)!');
+      expect(ss1.isValid).equal(true);
+      const ss2 = Siteswap.Parse('5551');
+      expect(ss2.isValid).equal(true);
+      const jif1 = ss1.toJIF();
+      const jif2 = ss2.toJIF();
+      jif1.meta = {};
+      jif2.meta = {};
+      expect(jif1).to.deep.equalInAnyOrder(jif2);
+    });
+
     it('JIF for 6 club 3 count', () => {
       const ss = Siteswap.Parse('<3p33|3p33>');
       expect(ss.isValid).equal(true);
