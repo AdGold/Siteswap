@@ -186,10 +186,10 @@ body {
             res += 'Ground state: ' + esc(state.toString()) + '<br>';
         } else {
             res += 'State: ' + state.toString() + '<br>';
-            const entry = state.entry(undefined, useSyncGround).toString();
-            const exit = state.exit(undefined, useSyncGround).toString();
-            if (entry.length > 0 || exit.length > 0) {
-                res += 'Entry: ' + esc(entry) + '<br>' + 'Exit: ' + esc(exit) + '<br>';
+            const entry = state.entry(undefined, useSyncGround);
+            const exit = state.exit(undefined, useSyncGround);
+            if (entry.period > 0 || exit.period > 0) {
+                res += 'Entry: ' + esc(entry.toString()) + '<br>' + 'Exit: ' + esc(exit.toString()) + '<br>';
             }
         }
         return res;
