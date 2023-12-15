@@ -443,6 +443,44 @@ describe('State', () => {
       expect(State.BasicTransition(other, state).toString()).equal('<L3pxB|4>');
     });
 
+    it('Complex passing transition 1', () => {
+      const state = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+        ]),
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(0, 1),
+        ]),
+      ]);
+      expect(state.entry().toString()).equal('<5555|4x4x4x5x>')
+    });
+
+    it('Complex passing transition 2', () => {
+      const state = new State([
+        new JugglerState([
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+        ]),
+        new JugglerState([
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(1, 0),
+          new JugglerStateBeat(0, 1),
+          new JugglerStateBeat(0, 0),
+          new JugglerStateBeat(0, 1),
+        ]),
+      ]);
+      expect(state.entry().toString()).equal('<441pxB|4x4x5x>')
+    });
+
     it('Shortest transition needs a flip', () => {
       const state1 = new State([
         new JugglerState([

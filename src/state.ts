@@ -330,6 +330,9 @@ export class State {
       for (let i = 0; i < length; i++) {
         const beat: Throw[][] = [[], []];
         for (const hand of [Hand.Right, Hand.Left]) {
+          if (s.jugglers[j].beats[i] == null) {
+            continue;
+          }
           for (let k = 0; k < s.jugglers[j].beats[i].val(hand); k++) {
             const start: Position = {juggler: j, time: i, hand: hand};
             beat[hand].push(Throw.FromPositions(start, land_times[upto]));
@@ -343,7 +346,7 @@ export class State {
     return new Siteswap(jugglers);
   }
 
-  static ShortestTransition(s1: State, s2: State, allowFlipped: boolean) {
+  static ShortestTransition(s1: State, s2: State, allowFlipped: boolean, allowExtraFlipped: boolean=false) {
     let best = State.BasicTransition(s1, s2);
     if (allowFlipped) {
       const flipA = State.BasicTransition(s1.flip(), s2);
@@ -352,6 +355,10 @@ export class State {
       if (siteswapShorter(flipA, best)) best = flipA;
       if (siteswapShorter(flipB, best)) best = flipB;
       if (siteswapShorter(flipAB, best)) best = flipAB;
+    }
+    if (allowExtraFlipped) {
+      // Try flipping jugglers around and flipping hands of some jugglers
+      // TODO: do this
     }
     return best;
   }
