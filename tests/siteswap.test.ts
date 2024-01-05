@@ -463,6 +463,21 @@ describe('Siteswap examples', () => {
       expect(ss.toString()).equals('{0,0.3,0.6}<3.3p3|3.3p3|4.3p3>');
     });
 
+    it('Complex delay inference', () => {
+      const ss = Siteswap.Parse('<5.5pB5|6pxC5.5pxA|6pxB5.5pxD|5.5pC5>');
+      expect(ss.errorMessage).equals('');
+      expect(ss.isValid).equals(true);
+      expect(ss.numJugglers).equals(4);
+      expect(ss.numObjects).equals(22);
+      expect(ss.period).equals(2);
+      expect(ss.maxHeight).equals(6);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
+      expect(ss.toString()).equals('<5.5pB5|6pxC5.5pxA|6pxB5.5pxD|5.5pC5>');
+    });
+
     it('Sync passing <(4p,4x)|(4p,4x)>', () => {
       const ss = Siteswap.Parse('<(4p,4x)|(4p,4x)>');
       expect(ss.errorMessage).equals('');
@@ -494,7 +509,7 @@ describe('Siteswap examples', () => {
 
     it('Collision <3pA|3pA>', () => {
       const ss = Siteswap.Parse('<3pA|3pA>');
-      expect(ss.errorMessage).equals('Collision at juggler 0, time 0, hand 0');
+      expect(ss.errorMessage).equals('Collision at juggler 0, time 0, hand 1');
       expect(ss.isValid).equals(false);
     });
 

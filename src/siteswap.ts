@@ -104,7 +104,7 @@ export class Siteswap {
           const pos: Position = { juggler: juggler, time: i, hand: hand };
           for (const th of this.throwsAt(pos)) {
             if (th.pass) {
-              const to = th.passTo ? th.passTo : (juggler + 1) % this.numJugglers;
+              const to = th.passTo != null ? th.passTo : (juggler + 1) % this.numJugglers;
               const land_frac = (this.jugglerDelays[juggler] + th.height) % 1;
               if (this.jugglerDelays[to] === -1) {
                 this.jugglerDelays[to] = land_frac;
