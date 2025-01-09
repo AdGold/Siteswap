@@ -145,6 +145,10 @@ export class Throw {
     return startJuggler;
   }
 
+  clone() {
+    return new Throw(this.dispHeight, this.x, this.pass, this.passTo);
+  }
+
   static FromPositions(p1: Position, p2: Position) {
     const height = p2.time - p1.time;
     const pass = p1.juggler !== p2.juggler;
@@ -187,6 +191,10 @@ export class JugglerBeat {
 
   flip() {
     return new JugglerBeat(this.RH, this.LH);
+  }
+
+  clone() {
+    return new JugglerBeat(this.LH.map(th => th.clone()), this.RH.map(th => th.clone()));
   }
 
   toString(nextHand: Hand) {
@@ -235,6 +243,10 @@ export class JugglerBeats {
 
   flip() {
     return new JugglerBeats(this.beats.map(beat => beat.flip()));
+  }
+
+  clone() {
+    return new JugglerBeats(this.beats.map(beat => beat.clone()));
   }
 
   toString() {

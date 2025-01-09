@@ -76,6 +76,9 @@ export class Siteswap {
       // Pure async siteswaps of odd period automatically flip sides
       this._implicitFlip = this.pureAsync && this.jugglers[0].beats.length % 2 === 1;
       for (let i = 0; i < this.jugglerDelays.length; i++) {
+        if (this.jugglerDelays[i] >= 1) {
+          this.jugglers[i] = this.jugglers[i].clone();
+        }
         while (this.jugglerDelays[i] >= 1) {
           let lastBeat = this.jugglers[i].beats.pop()!;
           if (this._implicitFlip) lastBeat = lastBeat.flip();

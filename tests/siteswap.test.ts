@@ -586,7 +586,7 @@ describe('Siteswap examples', () => {
       expect(ss.hasPass).equals(true);
     });
 
-    it('More complex passing shortcut <3p3|3p5|^5>', () => {
+    it('More complex passing shortcut <3p3|3p5|^2>', () => {
       const ss = Siteswap.Parse('<3p3|3p5|^2>');
       expect(ss.toString()).equals('<3p3|3p5|3p3|3p5>');
       expect(ss.errorMessage).equals('');
@@ -594,6 +594,22 @@ describe('Siteswap examples', () => {
       expect(ss.numJugglers).equals(4);
       expect(ss.numObjects).equals(14);
       expect(ss.period).equals(2);
+      expect(ss.maxHeight).equals(5);
+      expect(ss.maxMultiplex).equals(1);
+      expect(ss.hasAsync).equals(true);
+      expect(ss.hasSync).equals(false);
+      expect(ss.hasPass).equals(true);
+    });
+
+    it('More complex passing shortcut with delays {0,3}<4p33353|^2>', () => {
+      const ss2 = Siteswap.Parse('{0,3}<4p33353|4p33353>');
+      const ss = Siteswap.Parse('{0,3}<4p33353|^2>');
+      expect(ss.toString()).equals(ss2.toString());
+      expect(ss.errorMessage).equals('');
+      expect(ss.isValid).equals(true);
+      expect(ss.numJugglers).equals(2);
+      expect(ss.numObjects).equals(7);
+      expect(ss.period).equals(6);
       expect(ss.maxHeight).equals(5);
       expect(ss.maxMultiplex).equals(1);
       expect(ss.hasAsync).equals(true);
