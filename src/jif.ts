@@ -28,14 +28,16 @@ export interface JIF {
     name?: string;
     type?: string;
     description?: string;
+    generator?: string;
+    version?: string;
   };
   timeStretchFactor: number;
-  valid: boolean;
   jugglers: JIFJuggler[];
   limbs: JIFLimb[];
   props: JIFProp[];
   throws: JIFThrow[];
   repetition: {
-    period: number;
+    period?: number;
+    limbPermutation?: number[];
   };
 }

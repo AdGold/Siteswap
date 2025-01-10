@@ -865,9 +865,8 @@ describe('JIF conversion', () => {
       const ss = Siteswap.Parse('3');
       expect(ss.isValid).equal(true);
       expect(ss.toJIF()).to.deep.equalInAnyOrder({
-        meta: { name: '3', type: 'General siteswap', description: '3' },
+        meta: { name: '3', type: 'General siteswap', description: '3', generator: "siteswap.js", version: "0.01"  },
         timeStretchFactor: 1,
-        valid: true,
         jugglers: [ { name: 'A', position: [0, 0, 0], lookAt: [0, 0, 1] } ],
         limbs: [
           { juggler: 0, type: 'left hand' },
@@ -893,9 +892,8 @@ describe('JIF conversion', () => {
       const ss = Siteswap.Parse('531');
       expect(ss.isValid).equal(true);
       expect(ss.toJIF()).to.deep.equalInAnyOrder({
-        meta: { name: '531', type: 'General siteswap', description: '531' },
+        meta: { name: '531', type: 'General siteswap', description: '531', generator: "siteswap.js", version: "0.01"  },
         timeStretchFactor: 1,
-        valid: true,
         jugglers: [ { name: 'A', position: [0, 0, 0], lookAt: [0, 0, 1] } ],
         limbs: [
           { juggler: 0, type: 'left hand' },
@@ -921,9 +919,8 @@ describe('JIF conversion', () => {
       const ss = Siteswap.Parse('53');
       expect(ss.isValid).equal(true);
       expect(ss.toJIF()).to.deep.equalInAnyOrder({
-        meta: { name: '53', type: 'General siteswap', description: '53' },
+        meta: { name: '53', type: 'General siteswap', description: '53', generator: "siteswap.js", version: "0.01"  },
         timeStretchFactor: 1,
-        valid: true,
         jugglers: [ { name: 'A', position: [0, 0, 0], lookAt: [0, 0, 1] } ],
         limbs: [
           { juggler: 0, type: 'left hand' },
@@ -965,9 +962,8 @@ describe('JIF conversion', () => {
       const ss = Siteswap.Parse('<3p33|3p33>');
       expect(ss.isValid).equal(true);
       expect(ss.toJIF()).to.deep.equalInAnyOrder({
-        meta: { name: '<3p33|3p33>', type: 'General siteswap', description: '<3p33|3p33>' },
+        meta: { name: '<3p33|3p33>', type: 'General siteswap', description: '<3p33|3p33>', generator: "siteswap.js", version: "0.01" },
         timeStretchFactor: 1,
-        valid: true,
         jugglers: [
           { name: 'A', position: [1.5, 0, 0], lookAt: [0, 0, 0] },
           { name: 'B', position: [-1.5, 0, 0], lookAt: [0, 0, 0] }

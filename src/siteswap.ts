@@ -319,60 +319,96 @@ export class Siteswap {
       }
     }
     events.sort((a, b) => a.time - b.time);
-    const throws = [];
-    const positions: Map<string, number | undefined> = new Map();
-    let timeOffset = 0;
-    let nextProp = 0;
-    const inits = [];
-    while (true) {
+    let jif: JIF;
+    const useold = true;
+    if (useold) { // Use old code until passist is updated properly
+      const throws = [];
+      const positions: Map<string, number | undefined> = new Map();
+      let timeOffset = 0;
+      let nextProp = 0;
+      const inits = [];
+      while (true) {
+        for (const event of events) {
+          const time = event["time"] + timeOffset;
+          const fromHand = swapHand(time, this.period, this._implicitFlip) ? 1 - event["fromHand"] : event["fromHand"];
+          const toHand = swapHand(time, this.period, this._implicitFlip) ? 1 - event["toHand"] : event["toHand"];
+          const th: JIFThrow = {
+            time: time,
+            from: event["fromJuggler"] * 2 + fromHand,
+            to: event["toJuggler"] * 2 + toHand,
+            duration: event["height"],
+            label: event["label"],
+          };
+          if (positions.get(np(th.time, th.from)) == undefined) {
+            positions.set(np(th.time, th.from), nextProp);
+            inits.push([th.time, th.from, nextProp]);
+            nextProp += 1;
+          }
+          th.prop = positions.get(np(th.time, th.from));
+          positions.set(np(th.time + th.duration, th.to), positions.get(np(th.time, th.from)));
+          positions.set(np(th.time, th.from), undefined);
+          throws.push(th);
+        }
+        timeOffset += this.period;
+        let equal = true;
+        for (const [time, from, prop] of inits) {
+          if (positions.get(np(time + timeOffset, from)) !== prop) {
+            equal = false;
+            break;
+          }
+        }
+        if (equal) break;
+        if (timeOffset > 500) {
+          /* istanbul ignore next */
+          throw "Could not find a repetition within 500 steps, giving up";
+        }
+      }
+      jif = {
+        "meta": {
+          "name": this.toString(),
+          "type": "General siteswap",
+          "description": this.toString(),
+          "generator": "siteswap.js",
+          "version": "0.01",
+        },
+        "timeStretchFactor": 1,
+        "jugglers": jugglers,
+        "limbs": limbs,
+        "props": props,
+        "throws": throws,
+        "repetition": {"period": timeOffset},
+      };
+    } else { // New code which relies on passist completing things as it does in JIF edit interface
+      const throws = [];
       for (const event of events) {
-        const time = event["time"] + timeOffset;
-        const fromHand = swapHand(time, this.period, this._implicitFlip) ? 1 - event["fromHand"] : event["fromHand"];
-        const toHand = swapHand(time, this.period, this._implicitFlip) ? 1 - event["toHand"] : event["toHand"];
         const th: JIFThrow = {
-          time: time,
-          from: event["fromJuggler"] * 2 + fromHand,
-          to: event["toJuggler"] * 2 + toHand,
+          time: event["time"],
+          from: event["fromJuggler"] * 2 + event["fromHand"],
+          to: event["toJuggler"] * 2 + event["toHand"],
           duration: event["height"],
           label: event["label"],
         };
-        if (positions.get(np(th.time, th.from)) == undefined) {
-          positions.set(np(th.time, th.from), nextProp);
-          inits.push([th.time, th.from, nextProp]);
-          nextProp += 1;
-        }
-        th.prop = positions.get(np(th.time, th.from));
-        positions.set(np(th.time + th.duration, th.to), positions.get(np(th.time, th.from)));
-        positions.set(np(th.time, th.from), undefined);
         throws.push(th);
       }
-      timeOffset += this.period;
-      let equal = true;
-      for (const [time, from, prop] of inits) {
-        if (positions.get(np(time + timeOffset, from)) !== prop) {
-          equal = false;
-          break;
-        }
+      const limbPermutation = Array.from({ length: limbs.length }, (_, i) => this._implicitFlip ? i ^ 1 : i)
+      jif = {
+        "meta": {
+          "name": this.toString(),
+          "type": "General siteswap",
+          "description": this.toString(),
+          "generator": "siteswap.js",
+          "version": "0.01",
+        },
+        "timeStretchFactor": 1,
+        "jugglers": jugglers,
+        "limbs": limbs,
+        "props": props,
+        "throws": throws,
+        "repetition": {
+          "period": this.period,
+          "limbPermutation": limbPermutation,
+        },
       }
-      if (equal) break;
-      if (timeOffset > 500) {
-        /* istanbul ignore next */
-        throw "Could not find a repetition within 500 steps, giving up";
-      }
-    }
-    const jif: JIF = {
-      "meta": {
-        "name": this.toString(),
-        "type": "General siteswap",
-        "description": this.toString(),
-      },
-      "timeStretchFactor": 1,
-      "valid": true,
-      "jugglers": jugglers,
-      "limbs": limbs,
-      "props": props,
-      "throws": throws,
-      "repetition": {"period": timeOffset},
     };
     return jif;
   }
