@@ -51,6 +51,6 @@ There are times when it is better to explicitly only model basic vanilla siteswa
 
 ## Conversion to/from JIF
 
-Siteswap objects can be converted to [JIF](https://github.com/helbling/jif). JIF is still in an early format but the current version can be used with Christian's wonderful animator from [passist.org](https://passist.org), see [here](https://github.com/helbling/passist/tree/main/static/api) for details.
+`Siteswap` objects can be converted to [JIF](https://github.com/helbling/jif). JIF is still in an early format but the current version can be used with Christian's wonderful animator from [passist.org](https://passist.org), see [here](https://github.com/helbling/passist/tree/main/static/api) for details.
 
-Partial conversion from JIF into a siteswap is not yet implemented.
+Heuristic conversion from JIF into a `Siteswap` is implemented and will work for most patterns, but not all. It is not guaranteed to work for all patterns.

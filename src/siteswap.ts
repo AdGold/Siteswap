@@ -13,7 +13,7 @@ import {
 import { parse } from './parser';
 import { State } from './state';
 import { VanillaSiteswap } from './vanilla-siteswap';
-import { JIFThrow, JIF } from './jif';
+import { JIFThrow, JIF, JIFLimb, JIFJuggler } from './jif';
 
 function np(a: number, b: number) {
   return `${a},${b}`;
@@ -412,7 +412,44 @@ export class Siteswap {
     };
     return jif;
   }
-  // static FromJif(jif: JSON) { }
+
+  static FromJif(jif: any) {
+    if (jif.limbs.some((l: JIFLimb) => l.type !== "right hand" && l.type !== "left hand")) {
+      throw "Conversion from JIF only implemented with right and left hands";
+    }
+    const timeStretchFactor = jif.timeStretchFactor == null ? 1 : jif.timeStretchFactor;
+    const jugglers = jif.jugglers.map((j: JIFJuggler) => new JugglerBeats(Array.from(new Array(jif.repetition.period), () => [])));
+    const jugglerDelays = jif.jugglers.map((j: JIFJuggler) => 0);
+    const events: JIFThrow[] = jif.throws;
+    for (const event of events) {
+      const fromJuggler = jif.limbs[event.from].juggler;
+      const fromHand = jif.limbs[event.from].type === "right hand" ? Hand.Right : Hand.Left;
+      const toJuggler = jif.limbs[event.to].juggler;
+      const toHand = jif.limbs[event.to].type === "right hand" ? Hand.Right : Hand.Left;
+
+      const eventTime = event.time / timeStretchFactor;
+      const eventDuration = event.duration / timeStretchFactor;
+      const delay = eventTime % 1;
+      if (delay !== 0) {
+        if (jugglerDelays[fromJuggler] !== 0 && jugglerDelays[fromJuggler] !== delay) {
+          throw "Cannot handle multiple delays for the same juggler";
+        }
+        jugglerDelays[fromJuggler] = delay;
+      }
+      const time = eventTime - jugglerDelays[fromJuggler];
+      const pass = fromJuggler !== toJuggler;
+      const passTo = pass && jugglers.length > 2 ? toJuggler : undefined;
+      const hasX = pass ? fromHand === toHand : (eventDuration % 2 === 0) !== (fromHand === toHand);
+      const th = new Throw(eventDuration, hasX, pass, passTo);
+      const jugglerBeat = jugglers[fromJuggler].beats[time];
+      if (fromHand === Hand.Right) {
+        jugglerBeat.RH.push(th);
+      } else {
+        jugglerBeat.LH.push(th);
+      }
+    }
+    return new Siteswap(jugglers);
+  }
 
   static Parse(input: string) {
     const parsed = parse(input);

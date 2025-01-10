@@ -1000,4 +1000,115 @@ describe('JIF conversion', () => {
       });
     });
   });
+  describe('JIF to Siteswap conversion', () => {
+    it('JIF with extra limbs', () => {
+      const jif = {
+        jugglers: [ { name: 'A', position: [0, 0, 0], lookAt: [0, 0, 1] } ],
+        limbs: [
+          { juggler: 0, type: 'left hand' },
+          { juggler: 0, type: 'right hand' },
+          { juggler: 0, type: 'right leg' }
+        ],
+        throws: [
+          { time: 0, from: 1, to: 0, duration: 3, label: '3', prop: 0 },
+        ],
+        repetition: { period: 1 }
+      };
+      expect(() => Siteswap.FromJif(jif)).to.throw();
+    });
+
+    it('JIF with bad delays', () => {
+      const jif = {
+        jugglers: [ { name: 'A', position: [0, 0, 0], lookAt: [0, 0, 1] } ],
+        timeStretchFactor: 1,
+        limbs: [
+          { juggler: 0, type: 'left hand' },
+          { juggler: 0, type: 'right hand' }
+        ],
+        throws: [
+          { time: 0.3, from: 1, to: 0, duration: 3, label: '3', prop: 0 },
+          { time: 1.6, from: 0, to: 1, duration: 3, label: '3', prop: 0 },
+        ],
+        repetition: { period: 1 }
+      };
+      expect(() => Siteswap.FromJif(jif)).to.throw();
+    });
+
+    it('JIF for 531', () => {
+      const jif = {
+        meta: { name: '531', type: 'General siteswap', description: '531' },
+        jugglers: [ { name: 'A', position: [0, 0, 0], lookAt: [0, 0, 1] } ],
+        limbs: [
+          { juggler: 0, type: 'left hand' },
+          { juggler: 0, type: 'right hand' }
+        ],
+        throws: [
+          { time: 0, from: 1, to: 0, duration: 5, label: '5', prop: 0 },
+          { time: 1, from: 0, to: 1, duration: 3, label: '3', prop: 0 },
+          { time: 2, from: 1, to: 0, duration: 1, label: '1', prop: 0 },
+        ],
+        repetition: { period: 3 }
+      };
+      const ss = Siteswap.FromJif(jif);
+      expect(ss.isValid).equal(true);
+      expect(ss.toString()).equal('531');
+    });
+
+    it('JIF for 7 1-count with timestretch', () => {
+      const jif = {
+        meta: { name: '7', type: 'General siteswap', description: '7 1-count' },
+        timeStretchFactor: 2,
+        jugglers: [
+          { name: 'A', position: [0, 0, 0], lookAt: [0, 0, 1] },
+          { name: 'B', position: [0, 0, 0], lookAt: [0, 0, 1] }
+        ],
+        limbs: [
+          { juggler: 0, type: 'right hand' },
+          { juggler: 0, type: 'left hand' },
+          { juggler: 1, type: 'right hand' },
+          { juggler: 1, type: 'left hand' }
+        ],
+        throws: [
+          { time: 0, from: 0, to: 3, duration: 7, label: '7', prop: 0 },
+          { time: 1, from: 2, to: 0, duration: 7, label: '7', prop: 0 },
+        ],
+        repetition: { period: 1 }
+      };
+      const ss = Siteswap.FromJif(jif);
+      expect(ss.isValid).equal(true);
+      expect(ss.toString()).equal('<3.5p|3.5px>');
+    });
+
+    it('JIF for 1 count feed', () => {
+      const jif = {
+        meta: { name: '1c feed', type: 'General siteswap', description: '1c feed' },
+        timeStretchFactor: 1,
+        jugglers: [
+          { name: 'A', position: [0, 0, 0], lookAt: [0, 0, 1] },
+          { name: 'B', position: [0, 0, 0], lookAt: [0, 0, 1] },
+          { name: 'C', position: [0, 0, 0], lookAt: [0, 0, 1] },
+        ],
+        limbs: [
+          { juggler: 0, type: 'right hand' },
+          { juggler: 0, type: 'left hand' },
+          { juggler: 1, type: 'right hand' },
+          { juggler: 1, type: 'left hand' },
+          { juggler: 2, type: 'right hand' },
+          { juggler: 2, type: 'left hand' },
+        ],
+        throws: [
+          { time: 0, from: 0, to: 3, duration: 3, label: '3' },
+          { time: 1, from: 1, to: 4, duration: 3, label: '3' },
+          { time: 0, from: 2, to: 1, duration: 3, label: '3' },
+          { time: 1, from: 3, to: 2, duration: 3, label: '3' },
+          { time: 0, from: 4, to: 5, duration: 3, label: '3' },
+          { time: 1, from: 5, to: 0, duration: 3, label: '3' },
+        ],
+        repetition: { period: 2 }
+      };
+      const ss = Siteswap.FromJif(jif);
+      expect(ss.toString()).equal('<3pB3pC|3pA3|33pA>');
+      expect(ss.isValid).equal(true);
+    });
+  });
 });
