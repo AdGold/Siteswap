@@ -3,6 +3,7 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "declaration": true,
+    "declarationDir": "./lib/types",
     "forceConsistentCasingInFileNames": true,
     "noEmitOnError": false,
     "noFallthroughCasesInSwitch": true,
@@ -10,7 +11,7 @@
     "pretty": true,
     "sourceMap": true,
     "strict": true,
-    "rootDir": ".",
+    "rootDir": "./src",
     "outDir": "lib",
     "lib": [
       "es5",
@@ -20,8 +21,7 @@
     "target": "es5"
   },
   "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules"

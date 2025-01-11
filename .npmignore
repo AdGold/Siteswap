@@ -1,1 +1,30 @@
-tests/
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Coverage directory
+coverage
+
+# Test directory
+tests
+
+# TypeScript build output
+lib/esm
+lib/types
+
+# Source code
+src
+
+# PEG.js config file
+pegconfig.json
+
+# Webpack config file
+webpack.config.js
+
+# TypeScript config file
+tsconfig.json
+tsconfig.esm.json
+
+# Public directory
+public

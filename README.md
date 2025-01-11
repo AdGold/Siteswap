@@ -1,7 +1,11 @@
-Siteswap
+universal-siteswap
 ---
 
-This is a full-featured siteswap validation and analysis library that supports extended siteswap including async, sync, multiplex, passing and any combination. It supports 4-handed siteswap (and generally k-handed siteswap) and can calculate transitions, stack notation equivalents and convert to [JIF](https://github.com/helbling/jif) for use in other programs. See [Siteswap.html](https://github.com/AdGold/Siteswap/blob/main/public/Siteswap.html) for a simple example of what it can do.
+This is a full-featured siteswap validation and analysis library for JavaScript & TypeScript that supports all extended siteswap including async, sync, multiplex, passing and any combination thereof. It supports 4-handed siteswap (and generally k-handed siteswap) and can calculate transitions, stack notation equivalents and convert to/from [JIF](https://github.com/helbling/jif) for use in other programs. See [Siteswap.html](https://github.com/AdGold/universal-siteswap/blob/main/public/Siteswap.html) for a simple example of what it can do or a live version [here](https://diagonalrewards.com/juggling/Siteswap/public/Siteswap.html).
+
+# Installation
+
+`npm install universal-siteswap`
 
 # Usage
 
@@ -53,4 +57,4 @@ There are times when it is better to explicitly only model basic vanilla siteswa
 
 `Siteswap` objects can be converted to [JIF](https://github.com/helbling/jif). JIF is still in an early format but the current version can be used with Christian's wonderful animator from [passist.org](https://passist.org), see [here](https://github.com/helbling/passist/tree/main/static/api) for details.
 
-Heuristic conversion from JIF into a `Siteswap` is implemented and will work for most patterns, but not all. It is not guaranteed to work for all patterns.
+Heuristic conversion from JIF into a `Siteswap` is implemented and will work for most patterns, but not all, and may result in loss of precision as JIF is a more detailed description.
